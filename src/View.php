@@ -5,7 +5,7 @@
  */
 class View extends \CI4Xpander\AdminLTE\View
 {
-    protected string $_name = 'Dashboard';
+    protected $_name = 'Dashboard';
 
     use \CI4Xpander\ViewFactoryTrait;
 }

@@ -1,0 +1,23 @@
+{
+    "name": "codeigniter4-xpander/dashboard",
+    "description": "Dashboard implementation using codeigniter4 xpander",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Bagus A Priambada",
+            "email": "iam.adty@gmail.com"
+        }
+    ],
+    "require": {
+        "codeigniter4-xpander/core": "dev-develop",
+        "codeigniter4-xpander/adminlte": "dev-develop"
+    },
+    "autoload": {
+        "psr-4": {
+            "CI4Xpander\\Dashboard\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

@@ -1,6 +1,6 @@
 <?php
 
-namespace CI4Xpander\Dashboard\Entities;
+namespace CI4Xpander_Dashboard\Entities;
 
 class User extends \CI4Xpander\Entity
 {
@@ -14,13 +14,13 @@ class User extends \CI4Xpander\Entity
 
     const SCHEMA = [
         'user_role' => [
-            \CI4Xpander\Dashboard\Entities\User\Role::class,
+            \CI4Xpander_Dashboard\Entities\User\Role::class,
             '$target' => 'user_id',
             'role' => [
                 Role::class,
                 '$source' => 'role_id',
                 'role_permission' => [
-                    \CI4Xpander\Dashboard\Entities\Role\Permission::class,
+                    \CI4Xpander_Dashboard\Entities\Role\Permission::class,
                     '$target' => 'role_id',
                     'permission' => [
                         Permission::class,
@@ -46,7 +46,7 @@ class User extends \CI4Xpander\Entity
             ],
         ],
         'user_permission' => [
-            \CI4Xpander\Dashboard\Entities\User\Permission::class,
+            \CI4Xpander_Dashboard\Entities\User\Permission::class,
             '$target' => 'user_id',
             'permission' => [
                 Permission::class,

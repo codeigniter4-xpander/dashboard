@@ -1,6 +1,6 @@
 <?php
 
-namespace CI4Xpander\Dashboard\Entities\Menu;
+namespace CI4Xpander_Dashboard\Entities\Menu;
 
 class Type extends \CI4Xpander\Entity
 {

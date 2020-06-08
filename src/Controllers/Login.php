@@ -1,7 +1,7 @@
-<?php namespace CI4Xpander\Dashboard\Controllers;
+<?php namespace CI4Xpander_Dashboard\Controllers;
 
 /**
- * @property \CI4Xpander\Dashboard\View $view
+ * @property \CI4Xpander_Dashboard\View $view
  */
 class Login extends \CI4Xpander\Controller
 {
@@ -20,7 +20,8 @@ class Login extends \CI4Xpander\Controller
             'email' => 'required|valid_email',
             'password' => 'required'
         ])) {
-
+            \Config\Services::session()->set('user', $this->request->getPost('email'));
+            return redirect('dashboard');
         } else {
             \Config\Services::session()->setFlashdata('message', $this->validator->listErrors());
         }

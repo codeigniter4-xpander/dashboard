@@ -1,4 +1,4 @@
-<?php namespace CI4Xpander\Dashboard\Controllers;
+<?php namespace CI4Xpander_Dashboard\Controllers;
 
 class Logout extends \CI4Xpander\Controller
 {

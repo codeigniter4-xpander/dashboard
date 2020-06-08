@@ -1,9 +1,9 @@
-<?php namespace CI4Xpander\Dashboard;
+<?php namespace CI4Xpander_Dashboard;
 
 /**
- * @property \CI4Xpander\Dashboard\View\Data $data
+ * @property \CI4Xpander_Dashboard\View\Data $data
  */
-class View extends \CI4Xpander\AdminLTE\View
+class View extends \CI4Xpander_AdminLTE\View
 {
     protected $_name = 'Dashboard';
 

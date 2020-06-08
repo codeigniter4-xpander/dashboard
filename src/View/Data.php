@@ -1,6 +1,6 @@
-<?php namespace CI4Xpander\Dashboard\View;
+<?php namespace CI4Xpander_Dashboard\View;
 
-class Data extends \CI4Xpander\AdminLTE\View\Data
+class Data extends \CI4Xpander_AdminLTE\View\Data
 {
     protected function _init()
     {

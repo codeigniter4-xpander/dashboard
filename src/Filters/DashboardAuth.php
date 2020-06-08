@@ -1,4 +1,4 @@
-<?php namespace CI4Xpander\Dashboard\Filters;
+<?php namespace CI4Xpander_Dashboard\Filters;
 
 class DashboardAuth extends \CI4Xpander\Filters\Auth
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace CI4Xpander\Dashboard\Entities\Role;
+namespace CI4Xpander_Dashboard\Entities\Role;
 
 class Permission extends \CI4Xpander\Entity
 {

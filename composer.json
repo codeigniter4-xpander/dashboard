@@ -10,12 +10,11 @@
         }
     ],
     "require": {
-        "codeigniter4-xpander/core": "dev-develop",
         "codeigniter4-xpander/adminlte": "dev-develop"
     },
     "autoload": {
         "psr-4": {
-            "CI4Xpander\\Dashboard\\": "src/"
+            "CI4Xpander_Dashboard\\": "src/"
         }
     },
     "minimum-stability": "dev",

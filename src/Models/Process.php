@@ -1,6 +1,6 @@
 <?php
 
-namespace CI4Xpander\Dashboard\Models;
+namespace CI4Xpander_Dashboard\Models;
 
 class Process extends \CI4Xpander\Model
 {
@@ -8,5 +8,5 @@ class Process extends \CI4Xpander\Model
     protected $allowedFields = [
         'code', 'name', 'description', 'status_id', 'property', 'type_id'
     ];
-    protected $returnType = \CI4Xpander\Dashboard\Entities\Process::class;
+    protected $returnType = \CI4Xpander_Dashboard\Entities\Process::class;
 }

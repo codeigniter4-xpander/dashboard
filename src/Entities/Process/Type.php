@@ -1,6 +1,6 @@
 <?php
 
-namespace CI4Xpander\Dashboard\Entities\Process;
+namespace CI4Xpander_Dashboard\Entities\Process;
 
 class Type extends \CI4Xpander\Entity
 {

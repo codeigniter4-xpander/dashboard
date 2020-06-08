@@ -1,6 +1,6 @@
 <?php
 
-namespace CI4Xpander\Dashboard\Models;
+namespace CI4Xpander_Dashboard\Models;
 
 class User extends \CI4Xpander\Model
 {
@@ -8,5 +8,5 @@ class User extends \CI4Xpander\Model
     protected $allowedFields = [
         'code', 'name', 'email', 'password', 'status_id'
     ];
-    protected $returnType = \CI4Xpander\Dashboard\Entities\User::class;
+    protected $returnType = \CI4Xpander_Dashboard\Entities\User::class;
 }

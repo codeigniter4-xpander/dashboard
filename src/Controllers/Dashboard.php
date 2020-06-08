@@ -1,5 +1,8 @@
-<?php namespace CI4Xpander\Dashboard\Controllers;
+<?php namespace CI4Xpander_Dashboard\Controllers;
 
+/**
+ * @property \CI4Xpander_Dashboard\View $view
+ */
 class Dashboard extends \CI4Xpander\Controller
 {
     protected function _init()
@@ -10,7 +13,7 @@ class Dashboard extends \CI4Xpander\Controller
     public function index()
     {
         return $this->_render(function () {
-            $card = \CI4Xpander\AdminLTE\View\Component\Card::create();
+            $card = \CI4Xpander_AdminLTE\View\Component\Card::create();
             $card->data->title = 'CARD';
 
             $this->view->data->template->content = $card->render();

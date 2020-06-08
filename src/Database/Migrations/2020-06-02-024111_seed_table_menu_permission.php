@@ -1,4 +1,4 @@
-<?php namespace CI4Xpander\Dashboard\Database\Migrations;
+<?php namespace CI4Xpander_Dashboard\Database\Migrations;
 
 class SeedTableMenuPermission extends \CI4Xpander\Migration
 {

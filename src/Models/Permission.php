@@ -1,6 +1,6 @@
 <?php
 
-namespace CI4Xpander\Dashboard\Models;
+namespace CI4Xpander_Dashboard\Models;
 
 class Permission extends \CI4Xpander\Model
 {
@@ -8,5 +8,5 @@ class Permission extends \CI4Xpander\Model
     protected $allowedFields = [
         'code', 'name', 'description', 'status_id'
     ];
-    protected $returnType = \CI4Xpander\Dashboard\Entities\Permission::class;
+    protected $returnType = \CI4Xpander_Dashboard\Entities\Permission::class;
 }

@@ -9,4 +9,6 @@ class Permission extends \CI4Xpander\Model
         'status_id', 'user_id', 'permission_id', 'C', 'R', 'U', 'D'
     ];
     protected $returnType = \CI4Xpander_Dashboard\Entities\User\Permission::class;
+
+    use \CI4Xpander\ModelFactoryTrait;
 }

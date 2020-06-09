@@ -9,4 +9,6 @@ class User extends \CI4Xpander\Model
         'code', 'name', 'email', 'password', 'status_id'
     ];
     protected $returnType = \CI4Xpander_Dashboard\Entities\User::class;
+
+    use \CI4Xpander\ModelFactoryTrait;
 }

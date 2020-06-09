@@ -9,4 +9,6 @@ class Type extends \CI4Xpander\Model
         'status_id', 'code', 'name', 'description'
     ];
     protected $returnType = \CI4Xpander_Dashboard\Entities\Process\Type::class;
+
+    use \CI4Xpander\ModelFactoryTrait;
 }

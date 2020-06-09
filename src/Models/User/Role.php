@@ -9,4 +9,6 @@ class Role extends \CI4Xpander\Model
         'status_id', 'user_id', 'role_id'
     ];
     protected $returnType = \CI4Xpander_Dashboard\Entities\User\Role::class;
+
+    use \CI4Xpander\ModelFactoryTrait;
 }

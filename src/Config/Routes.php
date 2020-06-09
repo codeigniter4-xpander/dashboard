@@ -3,7 +3,7 @@
 /** @var \CodeIgniter\Router\RouteCollection $routes */
 $routes->match([
     'get'
-], 'logout', 'Logout::index', [
+], 'dashboard/logout', 'Logout::index', [
     'namespace' => 'CI4Xpander_Dashboard\Controllers'
 ]);
 

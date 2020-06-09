@@ -20,8 +20,9 @@ class Login extends \CI4Xpander\Controller
             'email' => 'required|valid_email',
             'password' => 'required'
         ])) {
-            \Config\Services::session()->set('user', $this->request->getPost('email'));
-            return redirect('dashboard');
+            $user = \CI4Xpander_Dashboard\Models\User::create()->withScheme()->where('email', $this->request->getPost('email'))->getCompiledSelect();
+
+            d($user);
         } else {
             \Config\Services::session()->setFlashdata('message', $this->validator->listErrors());
         }

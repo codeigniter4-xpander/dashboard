@@ -20,7 +20,7 @@ class SeedTableUserRole extends \CI4Xpander\Migration
             ],
             [
                 'user_id' => 2,
-                'role_id' => 3,
+                'role_id' => 2,
                 'status_id' => 1,
                 'created_at' => $date,
                 'updated_at' => $date,

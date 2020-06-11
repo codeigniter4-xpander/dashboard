@@ -21,4 +21,28 @@ $routes->group('dashboard', [
     $routes->match([
         'get', 'post'
     ], '/', 'Dashboard::index');
+
+    $routes->group('setting', [
+        'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting'
+    ], function (\CodeIgniter\Router\RouteCollection $routes) {
+        $routes->match([
+            'get', 'post'
+        ], 'site', 'Site::index');
+
+        $routes->match([
+            'get', 'post'
+        ], 'role-and-permission', 'Role_and_permission::index');
+
+        $routes->match([
+            'get', 'post'
+        ], 'user', 'User::index');
+
+        $routes->group('database', [
+            'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting\Database'
+        ], function (\CodeIgniter\Router\RouteCollection $routes) {
+            $routes->match([
+                'get', 'post'
+            ], 'migration', 'Migration::index');
+        });
+    });
 });

@@ -4,9 +4,11 @@ class Data extends \CI4Xpander_AdminLTE\View\Data
 {
     protected function _init()
     {
-        $this->site->title = 'CodeIgniter 4 Xpander | Dashboard';
-        $this->site->name = 'CI4 Xpander';
+        parent::_init();
 
-        $this->page->title = 'Dashboard';
+        $this->site->title = env('ci4xpander.site.title', '');
+        $this->site->name = env('ci4xpander.site.name', '');
+        $this->site->logo['mini'] = env('ci4xpander.site.logo.mini', '');
+        $this->site->logo['large'] = env('ci4xpander.site.logo.large', '');
     }
 }

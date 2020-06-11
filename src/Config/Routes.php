@@ -23,7 +23,8 @@ $routes->group('dashboard', [
     ], '/', 'Dashboard::index');
 
     $routes->group('setting', [
-        'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting'
+        'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting',
+        'filter' => 'ci4XpanderDashboardAuth:web,inside'
     ], function (\CodeIgniter\Router\RouteCollection $routes) {
         $routes->match([
             'get', 'post'
@@ -38,7 +39,8 @@ $routes->group('dashboard', [
         ], 'user', 'User::index');
 
         $routes->group('database', [
-            'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting\Database'
+            'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting\Database',
+            'filter' => 'ci4XpanderDashboardAuth:web,inside'
         ], function (\CodeIgniter\Router\RouteCollection $routes) {
             $routes->match([
                 'get', 'post'

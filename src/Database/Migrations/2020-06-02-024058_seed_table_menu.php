@@ -22,7 +22,7 @@ class SeedTableMenu extends \CI4Xpander\Migration
                 'created_by' => 1,
                 'updated_by' => 1,
                 'level' => 1,
-                'sequence_position' => 1,
+                'sequence_position' => 0,
                 'type_id' => 1
             ],
             [
@@ -47,7 +47,7 @@ class SeedTableMenu extends \CI4Xpander\Migration
                 'name' => 'Site',
                 'description' => 'Site Setting',
                 'url' => 'dashboard/setting/site',
-                'icon' => 'fa fa-digital-tachograph',
+                'icon' => 'fa fa-bars',
                 'status_id' => 1,
                 'created_at' => $date,
                 'updated_at' => $date,
@@ -102,7 +102,7 @@ class SeedTableMenu extends \CI4Xpander\Migration
                 'created_by' => 1,
                 'updated_by' => 1,
                 'level' => 2,
-                'sequence_position' => 99,
+                'sequence_position' => 98,
                 'type_id' => 1
             ],
             [
@@ -127,7 +127,7 @@ class SeedTableMenu extends \CI4Xpander\Migration
                 'name' => 'Migration',
                 'description' => 'Database migration',
                 'url' => 'dashboard/setting/database/migration',
-                'icon' => 'fa fa-retweet',
+                'icon' => 'fa fa-refresh',
                 'status_id' => 1,
                 'created_at' => $date,
                 'updated_at' => $date,
@@ -135,6 +135,22 @@ class SeedTableMenu extends \CI4Xpander\Migration
                 'updated_by' => 1,
                 'level' => 3,
                 'sequence_position' => 2,
+                'type_id' => 1
+            ],
+            [
+                'parent_id' => 2,
+                'code' => 'dashboardSettingProcess',
+                'name' => 'Process',
+                'description' => 'Process',
+                'url' => 'dashboard/setting/process',
+                'icon' => 'fa fa-spinner',
+                'status_id' => 1,
+                'created_at' => $date,
+                'updated_at' => $date,
+                'created_by' => 1,
+                'updated_by' => 1,
+                'level' => 2,
+                'sequence_position' => 99,
                 'type_id' => 1
             ]
         ]);

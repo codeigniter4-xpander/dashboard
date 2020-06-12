@@ -98,6 +98,16 @@ class SeedTablePermission extends \CI4Xpander\Migration
                 'updated_at' => $date,
                 'created_by' => 1,
                 'updated_by' => 1
+            ],
+            [
+                'code' => 'dashboardSettingProcess',
+                'name' => 'Dashboard/Setting/Process',
+                'description' => 'Dashboard/Setting/Process',
+                'status_id' => 1,
+                'created_at' => $date,
+                'updated_at' => $date,
+                'created_by' => 1,
+                'updated_by' => 1
             ]
         ]);
 

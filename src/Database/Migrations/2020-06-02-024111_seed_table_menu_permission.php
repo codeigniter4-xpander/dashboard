@@ -112,6 +112,19 @@ class SeedTableMenuPermission extends \CI4Xpander\Migration
                 'updated_at' => $date,
                 'created_by' => 1,
                 'deleted_by' => 1
+            ],
+            [
+                'status_id' => 1,
+                'menu_id' => 9,
+                'permission_id' => 10,
+                'C' => false,
+                'R' => true,
+                'U' => false,
+                'D' => false,
+                'created_at' => $date,
+                'updated_at' => $date,
+                'created_by' => 1,
+                'deleted_by' => 1
             ]
         ]);
 

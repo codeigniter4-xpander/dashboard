@@ -19,20 +19,26 @@ class Role
 
         $status = $builder->table('status')->where('code', 'active')->get()->getRow();
 
-        $parentID = 0;
-        if (!is_null($parent)) {
-            $parentID = $builder->table('role')->where('code', $parent)->get()->getRow()->id;
+        $role = $builder->table('user')->where('code', $dataRole['code'])->get()->getRow();
+
+        if (is_null($role)) {
+            $parentID = 0;
+            if (!is_null($parent)) {
+                $parentID = $builder->table('role')->where('code', $parent)->get()->getRow()->id;
+            }
+
+            $dataRole = array_merge([
+                'status_id' => $status->id,
+                'level' => 0,
+                'parent_id' => $parentID,
+            ], $trackable, $dataRole);
+
+            $builder->table('role')->insert($dataRole);
+
+            $idRole = $builder->insertID();
+        } else {
+            $idRole = $role->id;
         }
-
-        $dataRole = array_merge([
-            'status_id' => $status->id,
-            'level' => 0,
-            'parent_id' => $parentID,
-        ], $trackable, $dataRole);
-
-        $builder->table('role')->insert($dataRole);
-
-        $idRole = $builder->insertID();
 
         foreach ($permissions as $name => $permission) {
             $p = $builder->table('permission')->where('code', $name)->get()->getRow();
@@ -52,5 +58,20 @@ class Role
                 ));
             }
         }
+    }
+
+    public static function remove($code = '')
+    {
+        $builder = Database::connect();
+
+        $builder->table('role_permission')->where('role_id', function (\CodeIgniter\Database\BaseBuilder $builder) use ($code) {
+            return $builder->select('id')->from('role')->where('code', $code);
+        })->delete();
+
+        $builder->table('user_role')->where('role_id', function (\CodeIgniter\Database\BaseBuilder $builder) use ($code) {
+            return $builder->select('id')->from('role')->where('code', $code);
+        })->delete();
+
+        $builder->table('role')->where('code', $code)->delete();
     }
 }

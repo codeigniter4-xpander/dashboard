@@ -77,16 +77,6 @@ class Menu
     {
         $builder = Database::connect();
 
-        $builder->table('permission')
-            ->whereIn('id', function (\CodeIgniter\Database\BaseBuilder $builder) use ($code) {
-                return $builder
-                    ->select('permission_id')
-                    ->from('menu_permission')
-                    ->join('menu', 'menu.id = menu_permission.menu_id')
-                    ->where('menu.code', $code);
-            })
-            ->delete();
-
         $builder->table('menu_permission')
             ->where('menu_id', function (\CodeIgniter\Database\BaseBuilder $builder) use ($code) {
                 return $builder

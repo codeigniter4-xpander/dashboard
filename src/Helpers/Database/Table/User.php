@@ -19,15 +19,21 @@ class User
             'deleted_by' => 1
         ], $trackable);
 
-        $builder->table('user')->insert(array_merge(
-            [
-                'status_id' => $status->id,
-            ],
-            $trackable,
-            $dataUser
-        ));
+        $user = $builder->table('user')->where('code', $dataUser['code'])->get()->getRow();
 
-        $idUser = $builder->insertID();
+        if (is_null($user)) {
+            $builder->table('user')->insert(array_merge(
+                [
+                    'status_id' => $status->id,
+                ],
+                $trackable,
+                $dataUser
+            ));
+    
+            $idUser = $builder->insertID();
+        } else {
+            $idUser = $user->id;
+        }
 
         foreach ($roles as $roleName) {
             $role = $builder->table('role')->where('code', $roleName)->get()->getRow();
@@ -59,5 +65,20 @@ class User
                 ));
             }
         }
+    }
+
+    public static function remove($code = '')
+    {
+        $builder = Database::connect();
+
+        $builder->table('user_permission')->where('user_id', function (\CodeIgniter\Database\BaseBuilder $builder) use ($code) {
+            return $builder->select('id')->from('user')->where('code', $code);
+        })->delete();
+
+        $builder->table('user_role')->where('user_id', function (\CodeIgniter\Database\BaseBuilder $builder) use ($code) {
+            return $builder->select('id')->from('user')->where('code', $code);
+        })->delete();
+
+        $builder->table('user')->where('code', $code)->delete();
     }
 }

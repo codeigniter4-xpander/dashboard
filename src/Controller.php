@@ -91,7 +91,9 @@ class Controller extends \CI4Xpander\Controller
         }
 
         return $this->_render(function () {
-            $this->view->data->page->title = $this->view->data->page->title ?: "{$this->name} List";
+            $this->view->data->page->title = lang('CI4Xpander_Dashboard.indexPageTitle', [
+                ($this->view->data->page->title ?: $this->name)
+            ]);
 
             return $this->view->render();
         });

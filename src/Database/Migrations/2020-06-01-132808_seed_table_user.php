@@ -8,42 +8,31 @@ class SeedTableUser extends \CI4Xpander\Migration
 
         $this->db->transStart();
 
-        $date = date('Y-m-d H:i:s');
+        \CI4Xpander_Dashboard\Helpers\Database\Table\User::create([
+            'code' => 'system',
+            'email' => 'system@yourdomain.com',
+            'name' => 'System',
+            'password' => password_hash(random_string('sha1'), PASSWORD_ARGON2ID),
+        ], [
+            'system'
+        ]);
 
-        $this->db->table('user')->insertBatch([
-            [
-                'code' => 'system',
-                'email' => 'system@yourdomain.com',
-                'name' => 'System',
-                'password' => password_hash(random_string('sha1'), PASSWORD_ARGON2ID),
-                'status_id' => 1,
-                'created_at' => $date,
-                'updated_at' => $date,
-                'created_by' => 1,
-                'updated_by' => 1
-            ],
-            [
-                'code' => 'developer',
-                'email' => 'developer@yourdomain.com',
-                'name' => 'Developer',
-                'password' => password_hash('12345678', PASSWORD_ARGON2ID),
-                'status_id' => 1,
-                'created_at' => $date,
-                'updated_at' => $date,
-                'created_by' => 1,
-                'updated_by' => 1
-            ],
-            [
-                'code' => 'administrator',
-                'email' => 'administrator@yourdomain.com',
-                'name' => 'Aministrator',
-                'password' => password_hash('12345678', PASSWORD_ARGON2ID),
-                'status_id' => 1,
-                'created_at' => $date,
-                'updated_at' => $date,
-                'created_by' => 1,
-                'updated_by' => 1
-            ]
+        \CI4Xpander_Dashboard\Helpers\Database\Table\User::create([
+            'code' => 'developer',
+            'email' => 'developer@yourdomain.com',
+            'name' => 'Developer',
+            'password' => password_hash('!appDEVkominfoMGT2020!', PASSWORD_ARGON2ID),
+        ], [
+            'developer'
+        ]);
+
+        \CI4Xpander_Dashboard\Helpers\Database\Table\User::create([
+            'code' => 'administrator',
+            'email' => 'administrator@yourdomain.com',
+            'name' => 'Administrator',
+            'password' => password_hash('12345678', PASSWORD_ARGON2ID),
+        ], [
+            'administrator'
         ]);
 
         $this->db->transComplete();
@@ -56,6 +45,8 @@ class SeedTableUser extends \CI4Xpander\Migration
         $this->db->transStart();
 
         $this->db->table('user')->truncate();
+        $this->db->table('user_role')->truncate();
+        $this->db->table('user_permission')->truncate();
 
         $this->db->transComplete();
 	}

@@ -8,18 +8,17 @@ class SeedTableMenuType extends \CI4Xpander\Migration
 
         $this->db->transStart();
 
-        $this->db->table('menu_type')->insertBatch([
-            [
-                'code' => 'dashboard',
-                'name' => 'Dashboard',
-                'description' => 'Dashboard',
-                'status_id' => 1,
-                'created_at' => $date,
-                'deleted_at' => $date,
-                'status_id' => 1,
-                'created_by' => 1,
-                'updated_by' => 1
-            ]
+        $status = $this->db->table('status')->where('code', 'active')->get()->getRow();
+
+        $this->db->table('menu_type')->insert([
+            'code' => 'dashboard',
+            'name' => 'Dashboard',
+            'description' => 'Dashboard',
+            'status_id' => $status->id,
+            'created_at' => $date,
+            'deleted_at' => $date,
+            'created_by' => 1,
+            'updated_by' => 1
         ]);
 
         $this->db->transComplete();

@@ -3,5 +3,13 @@
 class Role_and_permission extends \CI4Xpander_Dashboard\Controller
 {
     protected $name = 'Role & Permission';
-    protected $isCRUD = true;
+
+    protected function _init()
+    {
+        parent::_init();
+
+        $this->CRUD = [
+            'enable' => true,
+        ];
+    }
 }

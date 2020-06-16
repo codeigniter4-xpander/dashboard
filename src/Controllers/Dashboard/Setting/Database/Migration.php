@@ -3,5 +3,13 @@
 class Migration extends \CI4Xpander_Dashboard\Controller
 {
     protected $name = 'Migration';
-    protected $isCRUD = true;
+
+    protected function _init()
+    {
+        parent::_init();
+
+        $this->CRUD = [
+            'enable' => true,
+        ];
+    }
 }

@@ -17,4 +17,9 @@ return [
             'title' => '{0} List',
         ],
     ],
+    'create' => [
+        'page' => [
+            'title' => 'Create New {0}',
+        ],
+    ],
 ];

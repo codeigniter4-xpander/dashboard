@@ -232,12 +232,14 @@ class Controller extends \CI4Xpander\Controller
                 helper('form');
 
                 $form = form_open();
-                $form .= form_hidden('_action', "create_{$this->name}");
+                $form .= form_hidden('_action', 'create');
 
                 foreach ($this->CRUD['form'] as $name => $input) {
                 }
 
                 $form .= form_close();
+
+                $this->view->data->template->content = $form;
             }
 
             return $this->view->render();

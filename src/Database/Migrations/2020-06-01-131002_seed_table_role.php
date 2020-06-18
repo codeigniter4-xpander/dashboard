@@ -65,6 +65,20 @@ class SeedTableRole extends \CI4Xpander\Migration
             ],
         ], 'system');
 
+        \CI4Xpander_Dashboard\Helpers\Database\Table\Role::create([
+            'code' => 'user',
+            'name' => 'User',
+            'description' => 'User',
+            'level' => 90,
+        ], [
+            'login' => [
+                'R' => true
+            ],
+            'dashboard' => [
+                'C' => false, 'R' => true, 'U' => false, 'D' => false
+            ],
+        ], 'system');
+
         $this->db->transComplete();
 	}
 

@@ -97,6 +97,12 @@ class Controller extends \CI4Xpander\Controller
             ]);
 
             if (isset($this->CRUD['index'])) {
+                $action = array_merge([
+                    'create' => true,
+                    'update' => true,
+                    'delete' => true,
+                ], $this->CRUD['action'] ?? []);
+
                 $box = \CI4Xpander_AdminLTE\View\Component\Box::create();
 
                 $table = null;
@@ -163,13 +169,22 @@ class Controller extends \CI4Xpander\Controller
                     $query->limit($limit, $offset);
 
                     $table = \CI4Xpander_AdminLTE\View\Component\Table::create();
+
+                    $tableAction = [
+                        'detail' => ''
+                    ];
+
+                    if ($action['update']) {
+                        $tableAction['update'] = '';
+                    }
+
+                    if ($action['delete']) {
+                        $tableAction['delete'] = '';
+                    }
+
                     $table->data->columns = array_merge(
                         $this->CRUD['index']['columns'],
-                        [
-                            'detail' => '',
-                            'update' => '',
-                            'delete' => '',
-                        ]
+                        $tableAction
                     );
 
                     $table->data->rows = $query->get()->getResult();
@@ -187,15 +202,17 @@ class Controller extends \CI4Xpander\Controller
                     $box->data->body = $rowTable . $rowPager;
                 }
 
-                $addButton = \CI4Xpander_AdminLTE\View\Component\Button::create(\CI4Xpander_AdminLTE\View\Component\Button\Data::create([
-                    'text' => lang('CI4Xpander_Dashboard.general.create'),
-                    'isBlock' => true,
-                    'type' => 'primary',
-                    'isLink' => true,
-                    'url' => $this->CRUD['base_url'] . '/create'
-                ]));
-
-                $box->data->head->tool = $addButton;
+                if ($action['create']) {
+                    $addButton = \CI4Xpander_AdminLTE\View\Component\Button::create(\CI4Xpander_AdminLTE\View\Component\Button\Data::create([
+                        'text' => lang('CI4Xpander_Dashboard.general.create'),
+                        'isBlock' => true,
+                        'type' => 'primary',
+                        'isLink' => true,
+                        'url' => $this->CRUD['base_url'] . '/create'
+                    ]));
+    
+                    $box->data->head->tool = $addButton;
+                }
 
                 $this->view->data->template->content = $box;
             }

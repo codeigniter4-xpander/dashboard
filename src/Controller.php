@@ -246,17 +246,15 @@ class Controller extends \CI4Xpander\Controller
             ]);
 
             if (isset($this->CRUD['form'])) {
-                helper('form');
+                $form = \CI4Xpander_AdminLTE\View\Component\Form::create();
+                $form->data->action = $this->CRUD['base_url'] . '/create';
+                $form->data->input = $this->CRUD['form'];
 
-                $form = form_open();
-                $form .= form_hidden('_action', 'create');
+                $formBox = \CI4Xpander_AdminLTE\View\Component\Box::create(\CI4Xpander_AdminLTE\View\Component\Box\Data::create([
+                    'body' => $form
+                ]));
 
-                foreach ($this->CRUD['form'] as $name => $input) {
-                }
-
-                $form .= form_close();
-
-                $this->view->data->template->content = $form;
+                $this->view->data->template->content = $formBox;
             }
 
             return $this->view->render();

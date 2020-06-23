@@ -210,7 +210,7 @@ class Controller extends \CI4Xpander\Controller
                         'isLink' => true,
                         'url' => $this->CRUD['base_url'] . '/create'
                     ]));
-    
+
                     $box->data->head->tool = $addButton;
                 }
 
@@ -247,12 +247,27 @@ class Controller extends \CI4Xpander\Controller
 
             if (isset($this->CRUD['form'])) {
                 $form = \CI4Xpander_AdminLTE\View\Component\Form::create();
-                $form->data->action = $this->CRUD['base_url'] . '/create';
-                $form->data->input = $this->CRUD['form'];
+                $form->action = $this->CRUD['base_url'] . '/create';
+                $form->hidden = [
+                    '_action' => 'create'
+                ];
+                $form->input = $this->CRUD['form']['input'] ?? [];
+                $form->request = $this->request;
+                $form->validator = $this->validator;
 
                 $formBox = \CI4Xpander_AdminLTE\View\Component\Box::create(\CI4Xpander_AdminLTE\View\Component\Box\Data::create([
                     'body' => $form
                 ]));
+
+                $addButton = \CI4Xpander_AdminLTE\View\Component\Button::create(\CI4Xpander_AdminLTE\View\Component\Button\Data::create([
+                    'text' => lang('CI4Xpander_Dashboard.general.cancel'),
+                    'isBlock' => true,
+                    'type' => 'danger',
+                    'isLink' => true,
+                    'url' => $this->CRUD['base_url']
+                ]));
+
+                $formBox->data->head->tool = $addButton;
 
                 $this->view->data->template->content = $formBox;
             }

@@ -11,6 +11,7 @@ return [
         'update' => 'Update',
         'delete' => 'Delete',
         'create' => 'Create',
+        'cancel' => 'Cancel',
     ],
     'index' => [
         'page' => [

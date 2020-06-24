@@ -10,7 +10,8 @@
         }
     ],
     "require": {
-        "codeigniter4-xpander/adminlte": "dev-develop"
+        "codeigniter4-xpander/adminlte": "dev-develop",
+        "codeigniter4-xpander/assets-manager": "dev-develop"
     },
     "autoload": {
         "psr-4": {

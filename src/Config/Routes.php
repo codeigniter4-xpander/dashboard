@@ -4,19 +4,20 @@
 $routes->match([
     'get'
 ], 'dashboard/logout', 'Logout::index', [
-    'namespace' => 'CI4Xpander_Dashboard\Controllers'
+    'namespace' => 'CI4Xpander_Dashboard\Controllers',
+    'filter' => 'CI4XDashboardAuth:web,inside'
 ]);
 
 $routes->match([
     'get', 'post'
 ], 'login', 'Login::index', [
     'namespace' => 'CI4Xpander_Dashboard\Controllers',
-    'filter' => 'ci4XpanderDashboardAuth:web,outside'
+    'filter' => 'CI4XDashboardAuth:web,outside'
 ]);
 
 $routes->group('dashboard', [
     'namespace' => 'CI4Xpander_Dashboard\Controllers',
-    'filter' => 'ci4XpanderDashboardAuth:web,inside'
+    'filter' => 'CI4XDashboardAuth:web,inside'
 ], function (\CodeIgniter\Router\RouteCollection $routes) {
     $routes->match([
         'get', 'post'
@@ -24,7 +25,7 @@ $routes->group('dashboard', [
 
     $routes->group('setting', [
         'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting',
-        'filter' => 'ci4XpanderDashboardAuth:web,inside'
+        'filter' => 'CI4XDashboardAuth:web,inside'
     ], function (\CodeIgniter\Router\RouteCollection $routes) {
         $routes->match([
             'get', 'post'
@@ -60,7 +61,7 @@ $routes->group('dashboard', [
 
         $routes->group('database', [
             'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting\Database',
-            'filter' => 'ci4XpanderDashboardAuth:web,inside'
+            'filter' => 'CI4XDashboardAuth:web,inside'
         ], function (\CodeIgniter\Router\RouteCollection $routes) {
             $routes->match([
                 'get', 'post'

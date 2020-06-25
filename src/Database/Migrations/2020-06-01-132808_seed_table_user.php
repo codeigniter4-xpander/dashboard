@@ -21,7 +21,7 @@ class SeedTableUser extends \CI4Xpander\Migration
             'code' => 'developer',
             'email' => 'developer@yourdomain.com',
             'name' => 'Developer',
-            'password' => password_hash('!appDEVkominfoMGT2020!', PASSWORD_ARGON2ID),
+            'password' => password_hash('12345678', PASSWORD_ARGON2ID),
         ], [
             'developer'
         ]);

@@ -4,6 +4,34 @@ use Config\Database;
 
 class Role
 {
+    public $code = null;
+
+    public function __construct($property = [])
+    {
+        $this->code = isset($property['code']) ?? null;
+    }
+
+    public static function get($code = null)
+    {
+        return new self([
+            'code' => $code
+        ]);
+    }
+
+    public function removePermissions($permissions = [])
+    {
+        $role = \CI4Xpander_Dashboard\Models\Role::create()->where('code', $this->code)->first();
+
+        if (!is_null($role)) {
+            \Config\Database::connect()->table('role_permission')
+                ->where('role_id', $role->id)
+                ->whereIn('permission_id', function (\CodeIgniter\Database\BaseBuilder $builder) use ($permissions) {
+                    return $builder->select('id')->from('permission')->whereIn('code', $permissions);
+                })
+                ->delete();
+        }
+    }
+
     public static function create($dataRole = [], $permissions = [], $parent = null, $trackable = [])
     {
         $builder = Database::connect();

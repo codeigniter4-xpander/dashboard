@@ -443,59 +443,57 @@ class Controller extends \CI4Xpander\Controller
         }
 
         $result = $data->get()->getResult();
-        if (isset($this->CRUD['index']['serverSideOutput'])) {
-            if ($this->CRUD['index']['serverSideOutput'] == 'html') {
-                // $columns['action'] = [
-                //     'label' => '',
-                //     'searchable' => false,
-                //     'orderable' => false
-                // ];
+        if ($this->CRUD['index']['isMapResultServerSide'] ?? false) {
+            // $columns['action'] = [
+            //     'label' => '',
+            //     'searchable' => false,
+            //     'orderable' => false
+            // ];
 
-                // $rowActions = [
-                //     'detail' => 'detail',
-                //     'update' => 'update',
-                //     'delete' => 'delete'
-                // ];
+            // $rowActions = [
+            //     'detail' => 'detail',
+            //     'update' => 'update',
+            //     'delete' => 'delete'
+            // ];
 
-                // if (isset($this->config['crud']['detail'])) {
-                //     if (isset($this->config['crud']['detail']['enable'])) {
-                //         if (!$this->config['crud']['detail']['enable']) {
-                //             unset($rowActions['detail']);
-                //         }
-                //     }
-                // }
+            // if (isset($this->config['crud']['detail'])) {
+            //     if (isset($this->config['crud']['detail']['enable'])) {
+            //         if (!$this->config['crud']['detail']['enable']) {
+            //             unset($rowActions['detail']);
+            //         }
+            //     }
+            // }
 
-                // if (isset($this->config['crud']['update'])) {
-                //     if (isset($this->config['crud']['update']['enable'])) {
-                //         if (!$this->config['crud']['update']['enable']) {
-                //             unset($rowActions['update']);
-                //         }
-                //     }
-                // }
+            // if (isset($this->config['crud']['update'])) {
+            //     if (isset($this->config['crud']['update']['enable'])) {
+            //         if (!$this->config['crud']['update']['enable']) {
+            //             unset($rowActions['update']);
+            //         }
+            //     }
+            // }
 
-                // if (isset($this->config['crud']['delete'])) {
-                //     if (isset($this->config['crud']['delete']['enable'])) {
-                //         if (!$this->config['crud']['delete']['enable']) {
-                //             unset($rowActions['delete']);
-                //         }
-                //     }
-                // }
+            // if (isset($this->config['crud']['delete'])) {
+            //     if (isset($this->config['crud']['delete']['enable'])) {
+            //         if (!$this->config['crud']['delete']['enable']) {
+            //             unset($rowActions['delete']);
+            //         }
+            //     }
+            // }
 
-                // if (isset($this->config['crud']['index']['rowActions'])) {
-                //     $x = $this->config['crud']['index']['rowActions'];
-                //     $rowActions = array_merge($rowActions, (array) $x);
-                // }
+            // if (isset($this->config['crud']['index']['rowActions'])) {
+            //     $x = $this->config['crud']['index']['rowActions'];
+            //     $rowActions = array_merge($rowActions, (array) $x);
+            // }
 
-                $tempResult = $result;
-                $result = [];
-                foreach ($tempResult as $value) {
-                    $row = new \stdClass;
-                    foreach ($columns as $field => $column) {
-                        $row->{$field} = $value->{$field};
-                    }
-
-                    $result[] = $row;
+            $tempResult = $result;
+            $result = [];
+            foreach ($tempResult as $value) {
+                $row = new \stdClass;
+                foreach ($columns as $field => $column) {
+                    $row->{$field} = $value->{$field};
                 }
+
+                $result[] = $row;
             }
         }
 

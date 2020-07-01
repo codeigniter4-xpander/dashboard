@@ -89,7 +89,7 @@ class Controller extends \CI4Xpander\Controller
 
     public function index()
     {
-        $this->_checkCRUD();
+        $this->_checkCRUD('index');
 
         return $this->_render(function () {
             $this->view->data->page->title = lang('CI4Xpander_Dashboard.index.page.title', [
@@ -106,13 +106,25 @@ class Controller extends \CI4Xpander\Controller
                 $box = \CI4Xpander_AdminLTE\View\Component\Box::create();
 
                 $table = null;
-                if (isset($this->CRUD['useDataTable'])) {
-                    if ($this->CRUD['useDataTable']) {
+                if (isset($this->CRUD['index']['isDataTable'])) {
+                    if ($this->CRUD['index']['isDataTable']) {
+                        $ID = preg_replace("/[^a-zA-Z0-9]/", "", $this->name);
+
                         $table = \CI4Xpander_AdminLTE\View\Component\Table::create();
                         $table->data->isDataTable = true;
+                        $table->data->id = $ID;
+                        $table->data->columns = $this->CRUD['index']['columns'];
+                        $table->data->rows = $this->CRUD['index']['query']->get()->getResult();
+
+                        \Config\Services::viewScript()->add(view('CI4Xpander_AdminLTE\Views\Script\DataTable', [
+                            'id' => $ID,
+                            'isServerSide' => $this->CRUD['index']['isServerSide'],
+                            'columns' => $this->CRUD['index']['columns']
+                        ]));
                     }
                 }
 
+                $rowPager = '';
                 if (is_null($table)) {
                     $minLimit = 10;
                     $maxLimit = 100;
@@ -193,14 +205,14 @@ class Controller extends \CI4Xpander\Controller
                     $colPager->data->content = \Config\Services::pager()->makeLinks($page, $limit, $total, 'CI4Xpander_AdminLTE_full');
                     $rowPager = \CI4Xpander_AdminLTE\View\Component\Row::create();
                     $rowPager->data->content = $colPager;
-
-                    $colTable = \CI4Xpander_AdminLTE\View\Component\Column::create();
-                    $colTable->data->content = $table;
-                    $rowTable = \CI4Xpander_AdminLTE\View\Component\Row::create();
-                    $rowTable->data->content = $colTable;
-
-                    $box->data->body = $rowTable . $rowPager;
                 }
+
+                $colTable = \CI4Xpander_AdminLTE\View\Component\Column::create();
+                $colTable->data->content = $table;
+                $rowTable = \CI4Xpander_AdminLTE\View\Component\Row::create();
+                $rowTable->data->content = $colTable;
+
+                $box->data->body = $rowTable . $rowPager;
 
                 if ($action['create']) {
                     $addButton = \CI4Xpander_AdminLTE\View\Component\Button::create(\CI4Xpander_AdminLTE\View\Component\Button\Data::create([
@@ -223,22 +235,281 @@ class Controller extends \CI4Xpander\Controller
 
     public function data()
     {
-        $this->_checkCRUD();
+        if (!$this->request->isAJAX()) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException();
+        }
+
+        $this->_checkCRUD('data');
 
         $error = isset($this->CRUD['index']) ? (
-            isset($this->CRUD['index']['useDataTable']) ? (
-                $this->CRUD['index']['useDataTable'] ? false : true
+            isset($this->CRUD['index']['isDataTable']) ? (
+                $this->CRUD['index']['isDataTable'] ? (
+                    $this->CRUD['index']['isServerSide'] ? false : true
+                ) : true
             ) : true
         ) : true;
 
         if ($error) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forMethodNotFound("{$this->_reflectionClass->getName()}::data");
         }
+
+        $columns = $this->CRUD['index']['columns'];
+        $query = $this->CRUD['index']['query']->getCompiledSelect();
+
+        // if (!is_string($query)) {
+        //     $query = $query();
+        //     if (!is_string($query)) {
+        //         $query = $query->getCompiledSelect();
+        //     }
+        // }
+
+        $draw = $this->request->getGet('draw');
+        $columnsGet = $this->request->getGet('columns');
+        $order = $this->request->getGet('order');
+        $start = $this->request->getGet('start');
+        $length = $this->request->getGet('length');
+        $search = $this->request->getGet('search');
+
+        /** @var \CodeIgniter\Database\BaseBuilder */
+        $data = \Config\Database::connect()->table('q');
+
+        /** @var \CodeIgniter\Database\BaseBuilder */
+        $recordsFiltered = \Config\Database::connect()->table('q');
+
+        $data->from("({$query}) q", true);
+        $recordsFiltered->from("({$query}) q", true);
+
+        $data->select("*, '' AS action", false);
+        $recordsTotal = \Config\Database::connect()->table('q')->from("({$query}) q", true);
+
+        if (isset($search)) {
+            if (isset($search['value'])) {
+                if (!empty($search['value'])) {
+                    if (isset($columnsGet)) {
+                        if (is_array($columnsGet)) {
+                            $data->groupStart();
+                            $recordsFiltered->groupStart();
+                            $i = 0;
+                            foreach ($columnsGet as $column) {
+                                if ($column['searchable'] == 'true') {
+                                    $c = $columns[$column['data']];
+
+                                    if (is_array($c)) {
+                                        if (isset($c['value'])) {
+                                            if (is_array($c['value'])) {
+                                                if ($i == 0) {
+                                                    $data->groupStart();
+                                                    $recordsFiltered->groupStart();
+                                                } else {
+                                                    $data->orGroupStart();
+                                                    $recordsFiltered->orGroupStart();
+                                                }
+                                                $j = 0;
+                                                foreach ($c['value'] as $cKey => $cValue) {
+                                                    if (is_numeric($cKey)) {
+                                                        $fToS = $cValue;
+                                                    } else {
+                                                        $fToS = $cKey;
+                                                    }
+
+                                                    if ($j == 0) {
+                                                        $data->like("{$fToS}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                        $recordsFiltered->like("{$fToS}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                    } else {
+                                                        $data->orLike("{$fToS}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                        $recordsFiltered->orLike("{$fToS}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                    }
+
+                                                    $j++;
+                                                }
+                                                $data->groupEnd();
+                                                $recordsFiltered->groupEnd();
+                                            } else {
+                                                if ($i == 0) {
+                                                    $data->like("{$c['value']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                    $recordsFiltered->like("{$c['value']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                } else {
+                                                    $data->orLike("{$c['value']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                    $recordsFiltered->orLike("{$c['value']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                }
+                                            }
+                                        } else {
+                                            if ($i == 0) {
+                                                $data->like("{$column['data']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                $recordsFiltered->like("{$column['data']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                            } else {
+                                                $data->orLike("{$column['data']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                $recordsFiltered->orLike("{$column['data']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                            }
+                                        }
+                                    } else {
+                                        if ($i == 0) {
+                                            $data->like("{$column['data']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                            $recordsFiltered->like("{$column['data']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                        } else {
+                                            $data->orLike("{$column['data']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                            $recordsFiltered->orLike("{$column['data']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                        }
+                                    }
+
+                                    $i++;
+                                }
+                            }
+
+                            $data->groupEnd();
+                            $recordsFiltered->groupEnd();
+                        }
+                    }
+                }
+            }
+        }
+
+        if (isset($columnsGet)) {
+            if (is_array($columnsGet)) {
+                foreach ($columnsGet as $column) {
+                    if ($column['searchable'] == 'true') {
+                        if (!empty($column['search']['value'])) {
+                            $c = $columns[$column['data']];
+                            if (is_array($c)) {
+                                if (isset($c['value'])) {
+                                    if (is_array($c['value'])) {
+                                        $data->groupStart();
+                                        $recordsFiltered->groupStart();
+                                        $i = 0;
+                                        foreach ($c['value'] as $cKey => $cValue) {
+                                            if (is_numeric($cKey)) {
+                                                $fToS = $cValue;
+                                            } else {
+                                                $fToS = $cKey;
+                                            }
+
+                                            if ($i == 0) {
+                                                $data->like("{$fToS}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                $recordsFiltered->like("{$fToS}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                            } else {
+                                                $data->orLike("{$fToS}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                $recordsFiltered->orLike("{$fToS}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                            }
+
+                                            $i++;
+                                        }
+                                        $data->groupEnd();
+                                        $recordsFiltered->groupEnd();
+                                    } else {
+                                        $data->like("{$c['value']}::TEXT", $this->db->escape("%{$column['search']['value']}%"), 'none', false, true);
+                                        $recordsFiltered->like("{$c['value']}::TEXT", $this->db->escape("%{$column['search']['value']}%"), 'none', false, true);
+                                    }
+                                } else {
+                                    $data->like($column['data'] . '::TEXT', $this->db->escape("%{$column['search']['value']}%"), 'none', false, true);
+                                    $recordsFiltered->like($column['data'] . '::TEXT', $this->db->escape("%{$column['search']['value']}%"), 'none', false, true);
+                                }
+                            } else {
+                                $data->like($column['data'] . '::TEXT', $this->db->escape("%{$column['search']['value']}%"), 'none', false, true);
+                                $recordsFiltered->like($column['data'] . '::TEXT', $this->db->escape("%{$column['search']['value']}%"), 'none', false, true);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (isset($order)) {
+            if (is_array($order)) {
+                foreach ($order as $columnOrder) {
+                    if (isset($columnsGet)) {
+                        if ($columnsGet[intval($columnOrder['column'])]['orderable'] == 'true') {
+                            $colKey = $columnsGet[intval($columnOrder['column'])]['data'];
+                            if (is_array($columns[$colKey])) {
+                                if (isset($columns[$colKey]['value'])) {
+                                    foreach ($columns[$colKey]['value'] as $field => $name) {
+                                        $data->orderBy(is_string($field) ? $field : $name, $columnOrder['dir']);
+                                    }
+                                }
+                            } else {
+                                $data->orderBy($columnsGet[intval($columnOrder['column'])]['data'], $columnOrder['dir']);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (isset($start)) {
+            $data->offset(intval($start));
+        }
+
+        if (isset($length)) {
+            $data->limit(intval($length));
+        }
+
+        $result = $data->get()->getResult();
+        if (isset($this->CRUD['index']['serverSideOutput'])) {
+            if ($this->CRUD['index']['serverSideOutput'] == 'html') {
+                // $columns['action'] = [
+                //     'label' => '',
+                //     'searchable' => false,
+                //     'orderable' => false
+                // ];
+
+                // $rowActions = [
+                //     'detail' => 'detail',
+                //     'update' => 'update',
+                //     'delete' => 'delete'
+                // ];
+
+                // if (isset($this->config['crud']['detail'])) {
+                //     if (isset($this->config['crud']['detail']['enable'])) {
+                //         if (!$this->config['crud']['detail']['enable']) {
+                //             unset($rowActions['detail']);
+                //         }
+                //     }
+                // }
+
+                // if (isset($this->config['crud']['update'])) {
+                //     if (isset($this->config['crud']['update']['enable'])) {
+                //         if (!$this->config['crud']['update']['enable']) {
+                //             unset($rowActions['update']);
+                //         }
+                //     }
+                // }
+
+                // if (isset($this->config['crud']['delete'])) {
+                //     if (isset($this->config['crud']['delete']['enable'])) {
+                //         if (!$this->config['crud']['delete']['enable']) {
+                //             unset($rowActions['delete']);
+                //         }
+                //     }
+                // }
+
+                // if (isset($this->config['crud']['index']['rowActions'])) {
+                //     $x = $this->config['crud']['index']['rowActions'];
+                //     $rowActions = array_merge($rowActions, (array) $x);
+                // }
+
+                $tempResult = $result;
+                $result = [];
+                foreach ($tempResult as $value) {
+                    $row = new \stdClass;
+                    foreach ($columns as $field => $column) {
+                        $row->{$field} = $value->{$field};
+                    }
+
+                    $result[] = $row;
+                }
+            }
+        }
+
+        return $this->response->setJSON([
+            'draw' => isset($draw) ? intval($draw) : 0,
+            'recordsTotal' => $recordsTotal->countAllResults(),
+            'recordsFiltered' => $recordsFiltered->countAllResults(),
+            'data' => $result
+        ]);
     }
 
     public function create()
     {
-        $this->_checkCRUD();
+        $this->_checkCRUD('create');
 
         return $this->_render(function () {
             $this->view->data->page->title = lang('CI4Xpander_Dashboard.create.page.title', [
@@ -276,14 +547,14 @@ class Controller extends \CI4Xpander\Controller
         });
     }
 
-    protected function _checkCRUD()
+    protected function _checkCRUD($method = '')
     {
         if (!isset($this->CRUD['enable'])) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forMethodNotFound("{$this->_reflectionClass->getName()}::create");
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forMethodNotFound("{$this->_reflectionClass->getName()}::{$method}");
         }
 
         if (!$this->CRUD['enable']) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forMethodNotFound("{$this->_reflectionClass->getName()}::create");
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forMethodNotFound("{$this->_reflectionClass->getName()}::{$method}");
         }
     }
 }

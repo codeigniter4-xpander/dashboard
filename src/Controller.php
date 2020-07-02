@@ -6,6 +6,7 @@
 class Controller extends \CI4Xpander\Controller
 {
     protected $name = '';
+    protected $_canonicName = '';
 
     /**
      * @var \CI4Xpander_Dashboard\Entities\User $user
@@ -17,11 +18,19 @@ class Controller extends \CI4Xpander\Controller
         'base_url' => ''
     ];
 
+    protected $permissionRuleSet = [
+        'index' => 'R',
+        'data' => 'R',
+        'create' => 'C',
+        'update' => 'U',
+        'delete' => 'D'
+    ];
+
     protected function _init()
     {
         parent::_init();
 
-        $this->user = \Config\Services::session()->get('user');
+        $this->user = (object) \Config\Services::session()->get('user');
         $this->view->data->user->name = $this->user->name;
 
         $grantedMenu = \CI4Xpander_Dashboard\Models\Menu::create()
@@ -39,6 +48,8 @@ class Controller extends \CI4Xpander\Controller
             ->findAll();
 
         $this->view->data->template->menu->items = $this->_buildMenuTree($grantedMenu);
+
+        $this->_canonicName = preg_replace("/[^a-zA-Z0-9]/", "", $this->name);
     }
 
     protected function _buildMenuTree($items, $parent = null)
@@ -103,23 +114,47 @@ class Controller extends \CI4Xpander\Controller
                     'delete' => true,
                 ], $this->CRUD['action'] ?? []);
 
+                if (isset($this->CRUD['permission'])) {
+                    $permission = $this->user->getPermission($this->CRUD['permission'], [
+                        'C', 'U', 'D'
+                    ]);
+
+                    $action['create'] = $permission->C;
+                    $action['update'] = $permission->U;
+                    $action['delete'] = $permission->D;
+                }
+
                 $box = \CI4Xpander_AdminLTE\View\Component\Box::create();
 
                 $table = null;
                 if (isset($this->CRUD['index']['isDataTable'])) {
                     if ($this->CRUD['index']['isDataTable']) {
-                        $ID = preg_replace("/[^a-zA-Z0-9]/", "", $this->name);
+                        $ID = "{$this->_canonicName}_DataTable";
+
+                        $actionColumns = [];
+                        if ($action['update']) {
+                            $actionColumns['update'] = '';
+                        }
+
+                        if ($action['delete']) {
+                            $actionColumns['delete'] = '';
+                        }
+
+                        $columns = array_merge(
+                            $this->CRUD['index']['columns'],
+                            $actionColumns
+                        );
 
                         $table = \CI4Xpander_AdminLTE\View\Component\Table::create();
                         $table->data->isDataTable = true;
                         $table->data->id = $ID;
-                        $table->data->columns = $this->CRUD['index']['columns'];
-                        $table->data->rows = $this->CRUD['index']['query']->get()->getResult();
+                        $table->data->columns = $columns;
+                        // $table->data->rows = $this->CRUD['index']['query']->get()->getResult();
 
                         \Config\Services::viewScript()->add(view('CI4Xpander_AdminLTE\Views\Script\DataTable', [
                             'id' => $ID,
                             'isServerSide' => $this->CRUD['index']['isServerSide'],
-                            'columns' => $this->CRUD['index']['columns']
+                            'columns' => $columns
                         ]));
                     }
                 }
@@ -253,15 +288,22 @@ class Controller extends \CI4Xpander\Controller
             throw \CodeIgniter\Exceptions\PageNotFoundException::forMethodNotFound("{$this->_reflectionClass->getName()}::data");
         }
 
+        $action = array_merge([
+            'update' => true,
+            'delete' => true,
+        ], $this->CRUD['action'] ?? []);
+
+        if (isset($this->CRUD['permission'])) {
+            $permission = $this->user->getPermission($this->CRUD['permission'], [
+                'U', 'D'
+            ]);
+
+            $action['update'] = $permission->U;
+            $action['delete'] = $permission->D;
+        }
+
         $columns = $this->CRUD['index']['columns'];
         $query = $this->CRUD['index']['query']->getCompiledSelect();
-
-        // if (!is_string($query)) {
-        //     $query = $query();
-        //     if (!is_string($query)) {
-        //         $query = $query->getCompiledSelect();
-        //     }
-        // }
 
         $draw = $this->request->getGet('draw');
         $columnsGet = $this->request->getGet('columns');
@@ -444,46 +486,13 @@ class Controller extends \CI4Xpander\Controller
 
         $result = $data->get()->getResult();
         if ($this->CRUD['index']['isMapResultServerSide'] ?? false) {
-            // $columns['action'] = [
-            //     'label' => '',
-            //     'searchable' => false,
-            //     'orderable' => false
-            // ];
 
-            // $rowActions = [
-            //     'detail' => 'detail',
-            //     'update' => 'update',
-            //     'delete' => 'delete'
-            // ];
 
-            // if (isset($this->config['crud']['detail'])) {
-            //     if (isset($this->config['crud']['detail']['enable'])) {
-            //         if (!$this->config['crud']['detail']['enable']) {
-            //             unset($rowActions['detail']);
-            //         }
-            //     }
-            // }
-
-            // if (isset($this->config['crud']['update'])) {
-            //     if (isset($this->config['crud']['update']['enable'])) {
-            //         if (!$this->config['crud']['update']['enable']) {
-            //             unset($rowActions['update']);
-            //         }
-            //     }
-            // }
-
-            // if (isset($this->config['crud']['delete'])) {
-            //     if (isset($this->config['crud']['delete']['enable'])) {
-            //         if (!$this->config['crud']['delete']['enable']) {
-            //             unset($rowActions['delete']);
-            //         }
-            //     }
-            // }
-
-            // if (isset($this->config['crud']['index']['rowActions'])) {
-            //     $x = $this->config['crud']['index']['rowActions'];
-            //     $rowActions = array_merge($rowActions, (array) $x);
-            // }
+            $columns['action'] = [
+                'label' => '',
+                'searchable' => false,
+                'orderable' => false
+            ];
 
             $tempResult = $result;
             $result = [];
@@ -491,6 +500,11 @@ class Controller extends \CI4Xpander\Controller
                 $row = new \stdClass;
                 foreach ($columns as $field => $column) {
                     $row->{$field} = $value->{$field};
+                }
+
+                if ($action['update']) {
+                    $row->update = anchor("{$this->CRUD['base_url']}/update/{$value->id}", 'Update');
+                    $row->delete = anchor("{$this->CRUD['base_url']}/delete/{$value->id}", 'Delete');
                 }
 
                 $result[] = $row;
@@ -515,6 +529,16 @@ class Controller extends \CI4Xpander\Controller
             ]);
 
             if (isset($this->CRUD['form'])) {
+                if ($this->request->getPost('_action')) {
+                    $methodName = '_action_' . $this->request->getPost('_action');
+                    if (method_exists($this, $methodName)) {
+                        $action = $this->{$methodName}();
+                        if (!is_null($action)) {
+                            return $action;
+                        }
+                    }
+                }
+
                 $form = \CI4Xpander_AdminLTE\View\Component\Form::create();
                 $form->action = $this->CRUD['base_url'] . '/create';
                 $form->hidden = [
@@ -553,6 +577,12 @@ class Controller extends \CI4Xpander\Controller
 
         if (!$this->CRUD['enable']) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forMethodNotFound("{$this->_reflectionClass->getName()}::{$method}");
+        }
+
+        if (isset($this->CRUD['permission'])) {
+            if (!$this->user->hasPermission($this->CRUD['permission'], $this->permissionRuleSet[$method])) {
+                throw \CodeIgniter\Exceptions\PageNotFoundException::forMethodNotFound("{$this->_reflectionClass->getName()}::{$method}");
+            }
         }
     }
 }

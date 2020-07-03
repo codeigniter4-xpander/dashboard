@@ -529,16 +529,6 @@ class Controller extends \CI4Xpander\Controller
             ]);
 
             if (isset($this->CRUD['form'])) {
-                if ($this->request->getPost('_action')) {
-                    $methodName = '_action_' . $this->request->getPost('_action');
-                    if (method_exists($this, $methodName)) {
-                        $action = $this->{$methodName}();
-                        if (!is_null($action)) {
-                            return $action;
-                        }
-                    }
-                }
-
                 $form = \CI4Xpander_AdminLTE\View\Component\Form::create();
                 $form->action = $this->CRUD['base_url'] . '/create';
                 $form->hidden = [
@@ -584,5 +574,31 @@ class Controller extends \CI4Xpander\Controller
                 throw \CodeIgniter\Exceptions\PageNotFoundException::forMethodNotFound("{$this->_reflectionClass->getName()}::{$method}");
             }
         }
+    }
+
+    protected function _actionTransaction($function = null, $action = '', $id = 0)
+    {
+        if (isset($this->CRUD['form'])) {
+            if (!is_null($function)) {
+                if (is_callable($function)) {
+                    \Config\Database::connect()->transStart();
+                    $function();
+                    \Config\Database::connect()->transComplete();
+
+                    if (\Config\Database::connect()->transStatus()) {
+                        return redirect()->to($this->CRUD['base_url'] . ($action == 'update' ? "/update/{$id}" : ''))->with('message', \CI4Xpander_Dashboard\Helpers\Message::create(
+                            \CI4Xpander_Dashboard\Helpers\Message::SUCCESS,
+                            'Success'
+                        ));
+                    } else {
+                        $error = \Config\Database::connect()->error();
+
+                        \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue("Error:<br/>{$error['message']} ({$error['code']})");
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }

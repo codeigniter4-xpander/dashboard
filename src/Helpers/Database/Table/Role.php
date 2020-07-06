@@ -8,7 +8,7 @@ class Role
 
     public function __construct($property = [])
     {
-        $this->code = isset($property['code']) ?? null;
+        $this->code = $property['code'] ?? null;
     }
 
     public static function get($code = null)

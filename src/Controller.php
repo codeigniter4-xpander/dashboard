@@ -261,7 +261,9 @@ class Controller extends \CI4Xpander\Controller
                     $box->data->head->tool = $addButton;
                 }
 
-                $this->view->data->template->content = $box;
+                $message = \Config\Services::dashboardMessage()->render();
+
+                $this->view->data->template->content = $message . $box->render();
             }
 
             return $this->view->render();
@@ -355,11 +357,11 @@ class Controller extends \CI4Xpander\Controller
                                                     }
 
                                                     if ($j == 0) {
-                                                        $data->like("{$fToS}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
-                                                        $recordsFiltered->like("{$fToS}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                        $data->like("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                                        $recordsFiltered->like("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
                                                     } else {
-                                                        $data->orLike("{$fToS}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
-                                                        $recordsFiltered->orLike("{$fToS}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                        $data->orLike("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                                        $recordsFiltered->orLike("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
                                                     }
 
                                                     $j++;
@@ -368,29 +370,29 @@ class Controller extends \CI4Xpander\Controller
                                                 $recordsFiltered->groupEnd();
                                             } else {
                                                 if ($i == 0) {
-                                                    $data->like("{$c['value']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
-                                                    $recordsFiltered->like("{$c['value']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                    $data->like("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                                    $recordsFiltered->like("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
                                                 } else {
-                                                    $data->orLike("{$c['value']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
-                                                    $recordsFiltered->orLike("{$c['value']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                    $data->orLike("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                                    $recordsFiltered->orLike("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
                                                 }
                                             }
                                         } else {
                                             if ($i == 0) {
-                                                $data->like("{$column['data']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
-                                                $recordsFiltered->like("{$column['data']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                $data->like("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                                $recordsFiltered->like("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
                                             } else {
-                                                $data->orLike("{$column['data']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
-                                                $recordsFiltered->orLike("{$column['data']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                $data->orLike("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                                $recordsFiltered->orLike("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
                                             }
                                         }
                                     } else {
                                         if ($i == 0) {
-                                            $data->like("{$column['data']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
-                                            $recordsFiltered->like("{$column['data']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                            $data->like("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                            $recordsFiltered->like("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
                                         } else {
-                                            $data->orLike("{$column['data']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
-                                            $recordsFiltered->orLike("{$column['data']}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                            $data->orLike("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                            $recordsFiltered->orLike("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
                                         }
                                     }
 
@@ -426,11 +428,11 @@ class Controller extends \CI4Xpander\Controller
                                             }
 
                                             if ($i == 0) {
-                                                $data->like("{$fToS}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
-                                                $recordsFiltered->like("{$fToS}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                $data->like("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                                $recordsFiltered->like("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
                                             } else {
-                                                $data->orLike("{$fToS}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
-                                                $recordsFiltered->orLike("{$fToS}::TEXT", $this->db->escape("%{$search['value']}%"), 'none', false, true);
+                                                $data->orLike("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                                $recordsFiltered->orLike("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
                                             }
 
                                             $i++;
@@ -438,16 +440,16 @@ class Controller extends \CI4Xpander\Controller
                                         $data->groupEnd();
                                         $recordsFiltered->groupEnd();
                                     } else {
-                                        $data->like("{$c['value']}::TEXT", $this->db->escape("%{$column['search']['value']}%"), 'none', false, true);
-                                        $recordsFiltered->like("{$c['value']}::TEXT", $this->db->escape("%{$column['search']['value']}%"), 'none', false, true);
+                                        $data->like("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$column['search']['value']}%"), 'none', false, true);
+                                        $recordsFiltered->like("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$column['search']['value']}%"), 'none', false, true);
                                     }
                                 } else {
-                                    $data->like($column['data'] . '::TEXT', $this->db->escape("%{$column['search']['value']}%"), 'none', false, true);
-                                    $recordsFiltered->like($column['data'] . '::TEXT', $this->db->escape("%{$column['search']['value']}%"), 'none', false, true);
+                                    $data->like($column['data'] . '::TEXT', \Config\Database::connect()->escape("%{$column['search']['value']}%"), 'none', false, true);
+                                    $recordsFiltered->like($column['data'] . '::TEXT', \Config\Database::connect()->escape("%{$column['search']['value']}%"), 'none', false, true);
                                 }
                             } else {
-                                $data->like($column['data'] . '::TEXT', $this->db->escape("%{$column['search']['value']}%"), 'none', false, true);
-                                $recordsFiltered->like($column['data'] . '::TEXT', $this->db->escape("%{$column['search']['value']}%"), 'none', false, true);
+                                $data->like($column['data'] . '::TEXT', \Config\Database::connect()->escape("%{$column['search']['value']}%"), 'none', false, true);
+                                $recordsFiltered->like($column['data'] . '::TEXT', \Config\Database::connect()->escape("%{$column['search']['value']}%"), 'none', false, true);
                             }
                         }
                     }
@@ -589,7 +591,7 @@ class Controller extends \CI4Xpander\Controller
                         return redirect()->to($this->CRUD['base_url'] . ($action == 'update' ? "/update/{$id}" : ''))->with('message', \CI4Xpander_Dashboard\Helpers\Message::create(
                             \CI4Xpander_Dashboard\Helpers\Message::SUCCESS,
                             'Success'
-                        ));
+                        )->render());
                     } else {
                         $error = \Config\Database::connect()->error();
 

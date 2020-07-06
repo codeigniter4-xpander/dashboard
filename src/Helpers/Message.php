@@ -45,12 +45,17 @@ class Message
             $this->value = null;
 
             return $message;
+        } elseif (!is_null(\Config\Services::session()->getFlashdata('message'))) {
+            $this->type = null;
+            $this->value = null;
+
+            return \Config\Services::session()->getFlashdata('message');
         }
 
         $this->type = null;
         $this->value = null;
 
-        return null;
+        return '';
     }
 
     public static function create($type = null, $value = null)

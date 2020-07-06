@@ -115,13 +115,33 @@ class Controller extends \CI4Xpander\Controller
                 ], $this->CRUD['action'] ?? []);
 
                 if (isset($this->CRUD['permission'])) {
-                    $permission = $this->user->getPermission($this->CRUD['permission'], [
-                        'C', 'U', 'D'
-                    ]);
+                    $permissionToCheck = [];
+                    if ($action['create']) {
+                        $permissionToCheck[] = 'C';
+                    }
 
-                    $action['create'] = $permission->C;
-                    $action['update'] = $permission->U;
-                    $action['delete'] = $permission->D;
+                    if ($action['update']) {
+                        $permissionToCheck[] = 'U';
+                    }
+
+                    if ($action['delete']) {
+                        $permissionToCheck[] = 'D';
+                    }
+
+                    $permission = $this->user->getPermission($this->CRUD['permission'], $permissionToCheck);
+
+                    if ($action['create']) {
+                        $action['create'] = $permission->C;
+                    }
+
+                    if ($action['update']) {
+                        $action['update'] = $permission->U;
+                    }
+
+                    if ($action['delete']) {
+                        $action['delete'] = $permission->D;
+                    }
+
                 }
 
                 $box = \CI4Xpander_AdminLTE\View\Component\Box::create();
@@ -295,13 +315,27 @@ class Controller extends \CI4Xpander\Controller
             'delete' => true,
         ], $this->CRUD['action'] ?? []);
 
-        if (isset($this->CRUD['permission'])) {
-            $permission = $this->user->getPermission($this->CRUD['permission'], [
-                'U', 'D'
-            ]);
+        unset($action['insert']);
 
-            $action['update'] = $permission->U;
-            $action['delete'] = $permission->D;
+        if (isset($this->CRUD['permission'])) {
+            $permissionToCheck = [];
+            if ($action['update']) {
+                $permissionToCheck[] = 'U';
+            }
+
+            if ($action['delete']) {
+                $permissionToCheck[] = 'D';
+            }
+
+            $permission = $this->user->getPermission($this->CRUD['permission'], $permissionToCheck);
+
+            if ($action['update']) {
+                $action['update'] = $permission->U;
+            }
+
+            if ($action['delete']) {
+                $action['delete'] = $permission->D;
+            }
         }
 
         $columns = $this->CRUD['index']['columns'];
@@ -312,7 +346,7 @@ class Controller extends \CI4Xpander\Controller
         $order = $this->request->getGet('order');
         $start = $this->request->getGet('start');
         $length = $this->request->getGet('length');
-        $search = $this->request->getGet('search');
+        $search = preg_replace('/\s+/', '%', $this->request->getGet('search')) ?? '';
 
         /** @var \CodeIgniter\Database\BaseBuilder */
         $data = \Config\Database::connect()->table('q');
@@ -338,6 +372,8 @@ class Controller extends \CI4Xpander\Controller
                                 if ($column['searchable'] == 'true') {
                                     $c = $columns[$column['data']];
 
+                                    $searchValue = trim(preg_replace('/\s+/', '%', $search['value']));
+
                                     if (is_array($c)) {
                                         if (isset($c['value'])) {
                                             if (is_array($c['value'])) {
@@ -357,11 +393,11 @@ class Controller extends \CI4Xpander\Controller
                                                     }
 
                                                     if ($j == 0) {
-                                                        $data->like("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
-                                                        $recordsFiltered->like("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                                        $data->like("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
+                                                        $recordsFiltered->like("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
                                                     } else {
-                                                        $data->orLike("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
-                                                        $recordsFiltered->orLike("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                                        $data->orLike("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
+                                                        $recordsFiltered->orLike("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
                                                     }
 
                                                     $j++;
@@ -370,29 +406,29 @@ class Controller extends \CI4Xpander\Controller
                                                 $recordsFiltered->groupEnd();
                                             } else {
                                                 if ($i == 0) {
-                                                    $data->like("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
-                                                    $recordsFiltered->like("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                                    $data->like("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
+                                                    $recordsFiltered->like("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
                                                 } else {
-                                                    $data->orLike("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
-                                                    $recordsFiltered->orLike("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                                    $data->orLike("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
+                                                    $recordsFiltered->orLike("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
                                                 }
                                             }
                                         } else {
                                             if ($i == 0) {
-                                                $data->like("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
-                                                $recordsFiltered->like("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                                $data->like("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
+                                                $recordsFiltered->like("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
                                             } else {
-                                                $data->orLike("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
-                                                $recordsFiltered->orLike("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                                $data->orLike("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
+                                                $recordsFiltered->orLike("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
                                             }
                                         }
                                     } else {
                                         if ($i == 0) {
-                                            $data->like("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
-                                            $recordsFiltered->like("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                            $data->like("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
+                                            $recordsFiltered->like("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
                                         } else {
-                                            $data->orLike("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
-                                            $recordsFiltered->orLike("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                            $data->orLike("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
+                                            $recordsFiltered->orLike("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
                                         }
                                     }
 
@@ -414,6 +450,9 @@ class Controller extends \CI4Xpander\Controller
                     if ($column['searchable'] == 'true') {
                         if (!empty($column['search']['value'])) {
                             $c = $columns[$column['data']];
+
+                            $searchValue = trim(preg_replace('/\s+/', '%', $column['search']['value']));
+
                             if (is_array($c)) {
                                 if (isset($c['value'])) {
                                     if (is_array($c['value'])) {
@@ -428,11 +467,11 @@ class Controller extends \CI4Xpander\Controller
                                             }
 
                                             if ($i == 0) {
-                                                $data->like("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
-                                                $recordsFiltered->like("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                                $data->like("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
+                                                $recordsFiltered->like("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
                                             } else {
-                                                $data->orLike("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
-                                                $recordsFiltered->orLike("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$search['value']}%"), 'none', false, true);
+                                                $data->orLike("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
+                                                $recordsFiltered->orLike("{$fToS}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
                                             }
 
                                             $i++;
@@ -440,16 +479,16 @@ class Controller extends \CI4Xpander\Controller
                                         $data->groupEnd();
                                         $recordsFiltered->groupEnd();
                                     } else {
-                                        $data->like("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$column['search']['value']}%"), 'none', false, true);
-                                        $recordsFiltered->like("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$column['search']['value']}%"), 'none', false, true);
+                                        $data->like("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
+                                        $recordsFiltered->like("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
                                     }
                                 } else {
-                                    $data->like($column['data'] . '::TEXT', \Config\Database::connect()->escape("%{$column['search']['value']}%"), 'none', false, true);
-                                    $recordsFiltered->like($column['data'] . '::TEXT', \Config\Database::connect()->escape("%{$column['search']['value']}%"), 'none', false, true);
+                                    $data->like($column['data'] . '::TEXT', \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
+                                    $recordsFiltered->like($column['data'] . '::TEXT', \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
                                 }
                             } else {
-                                $data->like($column['data'] . '::TEXT', \Config\Database::connect()->escape("%{$column['search']['value']}%"), 'none', false, true);
-                                $recordsFiltered->like($column['data'] . '::TEXT', \Config\Database::connect()->escape("%{$column['search']['value']}%"), 'none', false, true);
+                                $data->like($column['data'] . '::TEXT', \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
+                                $recordsFiltered->like($column['data'] . '::TEXT', \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
                             }
                         }
                     }

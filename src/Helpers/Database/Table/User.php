@@ -16,7 +16,7 @@ class User
             'created_at' => $date,
             'updated_at' => $date,
             'created_by' => 1,
-            'deleted_by' => 1
+            'updated_by' => 1
         ], $trackable);
 
         $user = $builder->table('user')->where('code', $dataUser['code'])->get()->getRow();
@@ -29,7 +29,7 @@ class User
                 $trackable,
                 $dataUser
             ));
-    
+
             $idUser = $builder->insertID();
         } else {
             $idUser = $user->id;

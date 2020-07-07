@@ -177,6 +177,8 @@ class Controller extends \CI4Xpander\Controller
                             'id' => $ID,
                             'isServerSide' => $this->CRUD['index']['isServerSide'],
                             'columns' => $columns
+                        ], [
+                            'saveData' => false
                         ]));
                     }
                 }
@@ -540,7 +542,7 @@ class Controller extends \CI4Xpander\Controller
                 if ($action['update']) {
                     $row->update = anchor("{$this->CRUD['base_url']}/update/{$value->id}", 'Update');
                 }
-                
+
                 if ($action['delete']) {
                     $row->delete = anchor("{$this->CRUD['base_url']}/delete/{$value->id}", 'Delete');
                 }

@@ -16,7 +16,7 @@ class SeedTableMenuType extends \CI4Xpander\Migration
             'description' => 'Dashboard',
             'status_id' => $status->id,
             'created_at' => $date,
-            'deleted_at' => $date,
+            'updated_at' => $date,
             'created_by' => 1,
             'updated_by' => 1
         ]);

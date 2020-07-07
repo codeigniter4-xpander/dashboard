@@ -1,5 +1,7 @@
 <?php namespace CI4Xpander_Dashboard;
 
+use CI4Xpander_Dashboard\Helpers\CRUD;
+
 /**
  * @property \CI4Xpander_Dashboard\View $view
  */
@@ -527,24 +529,19 @@ class Controller extends \CI4Xpander\Controller
 
         $result = $data->get()->getResult();
         if ($this->CRUD['index']['isMapResultServerSide'] ?? false) {
-
-
-            $columns['action'] = [
-                'label' => '',
-                'searchable' => false,
-                'orderable' => false
-            ];
-
             $tempResult = $result;
             $result = [];
             foreach ($tempResult as $value) {
                 $row = new \stdClass;
                 foreach ($columns as $field => $column) {
-                    $row->{$field} = $value->{$field};
+                    $row->{$field} = CRUD::renderField($value, $field, $column);
                 }
 
                 if ($action['update']) {
                     $row->update = anchor("{$this->CRUD['base_url']}/update/{$value->id}", 'Update');
+                }
+                
+                if ($action['delete']) {
                     $row->delete = anchor("{$this->CRUD['base_url']}/delete/{$value->id}", 'Delete');
                 }
 
@@ -576,6 +573,7 @@ class Controller extends \CI4Xpander\Controller
                     '_action' => 'create'
                 ];
                 $form->input = $this->CRUD['form']['input'] ?? [];
+                $form->script = $this->CRUD['form']['script'] ?? null;
                 $form->request = $this->request;
                 $form->validator = $this->validator;
 

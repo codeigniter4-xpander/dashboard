@@ -353,16 +353,16 @@ class Controller extends \CI4Xpander\Controller
         $search = preg_replace('/\s+/', '%', $this->request->getGet('search')) ?? '';
 
         /** @var \CodeIgniter\Database\BaseBuilder */
-        $data = \Config\Database::connect()->table('q');
+        $data = \Config\Database::connect()->table('ci4x_dashboard_data_temporary_table');
 
         /** @var \CodeIgniter\Database\BaseBuilder */
-        $recordsFiltered = \Config\Database::connect()->table('q');
+        $recordsFiltered = \Config\Database::connect()->table('ci4x_dashboard_data_temporary_table');
 
-        $data->from("({$query}) q", true);
-        $recordsFiltered->from("({$query}) q", true);
+        $data->from("({$query}) ci4x_dashboard_data_temporary_table", true);
+        $recordsFiltered->from("({$query}) ci4x_dashboard_data_temporary_table", true);
 
         $data->select("*, '' AS action", false);
-        $recordsTotal = \Config\Database::connect()->table('q')->from("({$query}) q", true);
+        $recordsTotal = \Config\Database::connect()->table('ci4x_dashboard_data_temporary_table')->from("({$query}) ci4x_dashboard_data_temporary_table", true);
 
         if (isset($search)) {
             if (isset($search['value'])) {

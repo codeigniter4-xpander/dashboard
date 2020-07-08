@@ -151,8 +151,8 @@ class User extends \CI4Xpander\Entity
                     }
                 }
 
-                $count = \Config\Database::connect()->table('q')
-                    ->from("({$userPermission->getCompiledSelect()} UNION {$rolePermission->getCompiledSelect()}) q", true)
+                $count = \Config\Database::connect()->table('ci4x_dashboard_entity_user_temporary_table')
+                    ->from("({$userPermission->getCompiledSelect()} UNION {$rolePermission->getCompiledSelect()}) ci4x_dashboard_entity_user_temporary_table", true)
                     ->countAllResults();
 
                 if ($count > 0) {
@@ -210,8 +210,8 @@ class User extends \CI4Xpander\Entity
                     }
                 }
 
-                $permissionResult = \Config\Database::connect()->table('q')
-                    ->from("({$userPermission->getCompiledSelect()} UNION {$rolePermission->getCompiledSelect()}) q", true);
+                $permissionResult = \Config\Database::connect()->table('ci4x_dashboard_entity_user_temporary_table')
+                    ->from("({$userPermission->getCompiledSelect()} UNION {$rolePermission->getCompiledSelect()}) ci4x_dashboard_entity_user_temporary_table", true);
             } elseif (is_array($code)) {
 
             }

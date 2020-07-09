@@ -11,14 +11,24 @@ class DashboardAuth extends \CI4Xpander\Filters\Auth
                 }
             } elseif (in_array('inside', $params)) {
                 if (!$this->session->has('user')) {
+                    $this->session->destroy();
+                    \Config\Services::modelTracker()->setCreatedBy(0);
+                    \Config\Services::modelTracker()->setUpdatedBy(0);
+                    \Config\Services::modelTracker()->setDeletedBy(0);
                     return redirect('login');
                 }
             } else {
                 $this->session->destroy();
+                \Config\Services::modelTracker()->setCreatedBy(0);
+                \Config\Services::modelTracker()->setUpdatedBy(0);
+                \Config\Services::modelTracker()->setDeletedBy(0);
                 return redirect('login');
             }
         } else {
             $this->session->destroy();
+            \Config\Services::modelTracker()->setCreatedBy(0);
+            \Config\Services::modelTracker()->setUpdatedBy(0);
+            \Config\Services::modelTracker()->setDeletedBy(0);
             return redirect('login');
         }
     }

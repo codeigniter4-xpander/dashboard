@@ -36,6 +36,9 @@ class Login extends \CI4Xpander\Controller
                 if ($verifyPassword) {
                     unset($user->password);
                     \Config\Services::session()->set('user', $user);
+                    \Config\Services::modelTracker()->setCreatedBy($user->id);
+                    \Config\Services::modelTracker()->setUpdatedBy($user->id);
+                    \Config\Services::modelTracker()->setDeletedBy($user->id);
                     return redirect('dashboard');
                 }
             }

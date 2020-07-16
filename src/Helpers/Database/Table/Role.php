@@ -1,7 +1,5 @@
 <?php namespace CI4Xpander_Dashboard\Helpers\Database\Table;
 
-use Config\Database;
-
 class Role
 {
     public $code = null;
@@ -34,7 +32,7 @@ class Role
 
     public static function create($dataRole = [], $permissions = [], $parent = null, $trackable = [])
     {
-        $builder = Database::connect();
+        $builder = \Config\Database::connect();
 
         $date = date('Y-m-d H:i:s');
 
@@ -47,7 +45,7 @@ class Role
 
         $status = $builder->table('status')->where('code', 'active')->get()->getRow();
 
-        $role = $builder->table('user')->where('code', $dataRole['code'])->get()->getRow();
+        $role = $builder->table('role')->where('code', $dataRole['code'])->get()->getRow();
 
         if (is_null($role)) {
             $parentID = 0;
@@ -57,7 +55,7 @@ class Role
 
             $dataRole = array_merge([
                 'status_id' => $status->id,
-                'level' => 0,
+                'level' => 99,
                 'parent_id' => $parentID,
             ], $trackable, $dataRole);
 
@@ -90,7 +88,7 @@ class Role
 
     public static function remove($code = '')
     {
-        $builder = Database::connect();
+        $builder = \Config\Database::connect();
 
         $builder->table('role_permission')->where('role_id', function (\CodeIgniter\Database\BaseBuilder $builder) use ($code) {
             return $builder->select('id')->from('role')->where('code', $code);

@@ -6,7 +6,7 @@ class CRUD
     {
         if (is_array($label)) {
             if (is_callable($label['value'])) {
-                return $label['value'](is_object($data) ? $data->{$name} : $data[$name]);
+                return $label['value'](is_object($data) ? $data->{$name} : $data[$name], $data);
             } else {
                 if (is_object($data)) {
                     return $data->{$label['value']};

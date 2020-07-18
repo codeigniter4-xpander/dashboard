@@ -11,7 +11,8 @@
     ],
     "require": {
         "codeigniter4-xpander/assets-manager": "dev-develop",
-        "codeigniter4-xpander/adminlte": "dev-develop"
+        "codeigniter4-xpander/adminlte": "dev-develop",
+        "codeigniter4-xpander/api": "dev-develop"
     },
     "autoload": {
         "psr-4": {
@@ -19,5 +20,11 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ]
 }

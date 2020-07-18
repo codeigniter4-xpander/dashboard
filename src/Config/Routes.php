@@ -27,20 +27,17 @@ $routes->group('dashboard', [
         'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting',
         'filter' => 'CI4XDashboardAuth:web,inside'
     ], function (\CodeIgniter\Router\RouteCollection $routes) {
-        $routes->match([
-            'get', 'post'
-        ], 'site', 'Site::index');
-
-        $routes->match([
-            'get', 'post'
-        ], 'site/update/(:num)', 'Site::update/$1');
-
         $routes->group('role-and-permission', [
             'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting\Role_and_permission',
             'filter' => 'CI4XDashboardAuth:web,inside'
         ], function (\CodeIgniter\Router\RouteCollection $routes) {
             $routes->get('role', 'Role::index');
             $routes->get('role/data', 'Role::data');
+            $routes->match(['get', 'post'], 'role/create', 'Role::create');
+
+            $routes->get('permission', 'Permission::index');
+            $routes->get('permission/data', 'Permission::data');
+            $routes->match(['get', 'post'], 'permission/create', 'Permission::create');
         });
 
         $routes->group('user', [
@@ -58,6 +55,23 @@ $routes->group('dashboard', [
             $routes->match([
                 'get', 'post'
             ], 'migration', 'Migration::index');
+        });
+    });
+
+    $routes->group('api', [
+        'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Api',
+        'filter' => 'CI4XDashboardAuth:web,inside'
+    ], function (\CodeIgniter\Router\RouteCollection $routes) {
+        $routes->group('setting', [
+            'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Api\Setting',
+            'filter' => 'CI4XDashboardAuth:web,inside'
+        ], function (\CodeIgniter\Router\RouteCollection $routes) {
+            $routes->group('role-and-permission', [
+                'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Api\Setting\Role_and_permission',
+                'filter' => 'CI4XDashboardAuth:web,inside'
+            ], function (\CodeIgniter\Router\RouteCollection $routes) {
+                $routes->get('permission', 'Permission::index');
+            });
         });
     });
 });

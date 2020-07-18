@@ -79,7 +79,7 @@ class SeedTableMenu extends \CI4Xpander\Migration
             'name' => 'User',
             'description' => 'User setting',
             'url' => 'dashboard/setting/user',
-            'icon' => 'fa fa-user',
+            'icon' => 'fa fa-users',
             'level' => 2,
             'sequence_position' => 3,
             'type_id' => 1
@@ -158,6 +158,40 @@ class SeedTableMenu extends \CI4Xpander\Migration
         ], [
             'R' => true
         ], 'dashboardSettingDatabase');
+
+        \CI4Xpander_Dashboard\Helpers\Database\Table\Menu::create([
+            'code' => 'dashboardSettingRole',
+            'name' => 'Role',
+            'description' => 'Dashboard Setting Role',
+            'url' => 'dashboard/setting/role-and-permission/role',
+            'icon' => 'fa fa-star',
+            'level' => 3,
+            'sequence_position' => 1,
+            'type_id' => 1
+        ], [
+            'code' => 'dashboardSettingRole',
+            'name' => 'Dashboard Setting Role',
+            'description' => 'Dashboard Setting Role'
+        ], [
+            'R' => true
+        ], 'dashboardSettingRoleAndPermission');
+
+        \CI4Xpander_Dashboard\Helpers\Database\Table\Menu::create([
+            'code' => 'dashboardSettingPermission',
+            'name' => 'Permission',
+            'description' => 'Dashboard Setting Permission',
+            'url' => 'dashboard/setting/role-and-permission/permission',
+            'icon' => 'fa fa-check-square-o',
+            'level' => 3,
+            'sequence_position' => 2,
+            'type_id' => 1
+        ], [
+            'code' => 'dashboardSettingPermission',
+            'name' => 'Dashboard Setting Permission',
+            'description' => 'Dashboard Setting Permission'
+        ], [
+            'R' => true
+        ], 'dashboardSettingRoleAndPermission');
 
         $this->db->transComplete();
 	}

@@ -482,6 +482,9 @@ class Controller extends \CI4Xpander\Controller
                                         }
                                         $data->groupEnd();
                                         $recordsFiltered->groupEnd();
+                                    } elseif (is_callable($c['value'])) {
+                                        $data->like("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
+                                        $recordsFiltered->like("{$column['data']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
                                     } else {
                                         $data->like("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);
                                         $recordsFiltered->like("{$c['value']}::TEXT", \Config\Database::connect()->escape("%{$searchValue}%"), 'none', false, true);

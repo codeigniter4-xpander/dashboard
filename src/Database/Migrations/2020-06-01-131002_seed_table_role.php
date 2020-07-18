@@ -34,6 +34,12 @@ class SeedTableRole extends \CI4Xpander\Migration
             'dashboardSettingRoleAndPermission' => [
                 'C' => true, 'R' => true, 'U' => true, 'D' => true
             ],
+            'dashboardSettingRole' => [
+                'C' => true, 'R' => true, 'U' => true, 'D' => true
+            ],
+            'dashboardSettingPermission' => [
+                'C' => true, 'R' => true, 'U' => true, 'D' => true
+            ],
             'dashboardSettingUser' => [
                 'C' => true, 'R' => true, 'U' => true, 'D' => true
             ],

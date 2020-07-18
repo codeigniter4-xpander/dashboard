@@ -35,29 +35,21 @@ $routes->group('dashboard', [
             'get', 'post'
         ], 'site/update/(:num)', 'Site::update/$1');
 
-        $routes->match([
-            'get', 'post'
-        ], 'role-and-permission', 'Role_and_permission::index');
+        $routes->group('role-and-permission', [
+            'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting\Role_and_permission',
+            'filter' => 'CI4XDashboardAuth:web,inside'
+        ], function (\CodeIgniter\Router\RouteCollection $routes) {
+            $routes->get('role', 'Role::index');
+            $routes->get('role/data', 'Role::data');
+        });
 
-        $routes->match([
-            'get', 'post'
-        ], 'role-and-permission/create', 'Role_and_permission::create');
-
-        $routes->match([
-            'get', 'post'
-        ], 'role-and-permission/update/(:num)', 'Role_and_permission::update/$1');
-
-        $routes->match([
-            'get', 'post'
-        ], 'user', 'User::index');
-
-        $routes->match([
-            'get', 'post'
-        ], 'user/create', 'User::create');
-
-        $routes->match([
-            'get', 'post'
-        ], 'user/update/(:num)', 'User::update/$1');
+        $routes->group('user', [
+            'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting',
+            'filter' => 'CI4XDashboardAuth:web,inside'
+        ], function (\CodeIgniter\Router\RouteCollection $routes) {
+            $routes->get('/', 'User::index');
+            $routes->get('data', 'User::data');
+        });
 
         $routes->group('database', [
             'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting\Database',

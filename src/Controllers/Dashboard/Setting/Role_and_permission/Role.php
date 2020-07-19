@@ -124,30 +124,38 @@ class Role extends \CI4Xpander_Dashboard\Controller
 
     protected function _action_create()
     {
-        return $this->_actionTransaction(function () {
-            $data = Input::filter($this->request->getPost());
+        if ($this->validate([
+            'code' => 'required',
+            'name' => 'required',
+            'level' => 'required|is_natural_no_zero|less_than[100]'
+        ])) {
+            return $this->_actionTransaction(function () {
+                $data = Input::filter($this->request->getPost());
 
-            $statusActive = Status::create()->where('code', 'active')->first();
+                $statusActive = Status::create()->where('code', 'active')->first();
 
-            $roleID = ModelsRole::create()->insert([
-                'code' => $data['code'],
-                'name' => $data['name'],
-                'description' => $data['description'],
-                'level' => $data['level'],
-                'status_id' => $statusActive->id
-            ]);
-
-            $rolePermission = Permission::create();
-            foreach ($data['permissions'] as $permission) {
-                $rolePermission->insert([
-                    'role_id',
-                    'permission_id',
-                    'C',
-                    'R',
-                    'U',
-                    'D'
+                $roleID = ModelsRole::create()->insert([
+                    'code' => $data['code'],
+                    'name' => $data['name'],
+                    'description' => $data['description'],
+                    'level' => $data['level'],
+                    'status_id' => $statusActive->id
                 ]);
-            }
-        }, 'create');
+
+                $rolePermission = Permission::create();
+                foreach ($data['permissions'] as $permission) {
+                    $rolePermission->insert([
+                        'role_id',
+                        'permission_id',
+                        'C',
+                        'R',
+                        'U',
+                        'D'
+                    ]);
+                }
+            }, 'create');
+        } else {
+            \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Gagal menyimpan data. Mohon periksa data yang anda masukkan.');
+        }
     }
 }

@@ -596,7 +596,7 @@ class Controller extends \CI4Xpander\Controller
 
                 $formBox->data->head->tool = $addButton;
 
-                $this->view->data->template->content = $formBox;
+                $this->view->data->template->content = \Config\Services::dashboardMessage()->render() . $formBox->render();
             }
 
             return $this->view->render();

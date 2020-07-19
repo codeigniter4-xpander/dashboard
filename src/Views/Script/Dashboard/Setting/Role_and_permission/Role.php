@@ -27,6 +27,13 @@ $('#<?= \CI4Xpander_AdminLTE\View\Component\Form::getInputID('permissions[]', [
                 'type' => \CI4Xpander_AdminLTE\View\Component\Form\Type::BUTTON_GROUP
             ]); ?>_container');
 
+            optionCRUD.find('#' + crudTemplate + '_label').text(option.text() + ' permission').attr('for', optionName).attr('id', optionName + '_label');
+
+            optionCRUD.find('#' + crudTemplate + 'Create').attr('name', 'crud[' + option.val() + '][]').attr('id', optionName + 'Create');
+            optionCRUD.find('#' + crudTemplate + 'Read').attr('name', 'crud[' + option.val() + '][]').attr('id', optionName + 'Read');
+            optionCRUD.find('#' + crudTemplate + 'Update').attr('name', 'crud[' + option.val() + '][]').attr('id', optionName + 'Update');
+            optionCRUD.find('#' + crudTemplate + 'Delete').attr('name', 'crud[' + option.val() + '][]').attr('id', optionName + 'Delete');
+
             if (crudList.indexOf(optionName) !== -1) {
 
             } else {

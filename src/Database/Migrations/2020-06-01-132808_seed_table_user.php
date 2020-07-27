@@ -12,7 +12,7 @@ class SeedTableUser extends \CI4Xpander\Migration
             'code' => 'system',
             'email' => 'system@yourdomain.com',
             'name' => 'System',
-            'password' => password_hash(random_string('sha1'), PASSWORD_ARGON2ID),
+            'password' => \Config\Services::hashPassword(random_string('sha1')),
         ], [
             'system'
         ]);
@@ -21,7 +21,7 @@ class SeedTableUser extends \CI4Xpander\Migration
             'code' => 'developer',
             'email' => 'developer@yourdomain.com',
             'name' => 'Developer',
-            'password' => password_hash(env('ci4xpander.user.developer.first_password', '1234567890'), PASSWORD_ARGON2ID),
+            'password' => \Config\Services::hashPassword(env('ci4xpander.user.developer.first_password', '1234567890')),
         ], [
             'developer'
         ]);
@@ -30,7 +30,7 @@ class SeedTableUser extends \CI4Xpander\Migration
             'code' => 'administrator',
             'email' => 'administrator@yourdomain.com',
             'name' => 'Administrator',
-            'password' => password_hash(env('ci4xpander.user.administrator.first_password', '1234567890'), PASSWORD_ARGON2ID),
+            'password' => \Config\Services::hashPassword(env('ci4xpander.user.administrator.first_password', '1234567890')),
         ], [
             'administrator'
         ]);

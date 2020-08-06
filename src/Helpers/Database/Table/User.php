@@ -50,7 +50,7 @@ class User
         foreach ($permissions as $name => $permission) {
             $p = $builder->table('permission')->where('code', $name)->get()->getRow();
             if (!is_null($p)) {
-                $builder->table('iser_permission')->insert(array_merge(
+                $builder->table('user_permission')->insert(array_merge(
                     [
                         'user_id' => $idUser,
                         'permission_id' => $p->id,

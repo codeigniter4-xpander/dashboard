@@ -46,6 +46,9 @@ $routes->group('dashboard', [
         ], function (\CodeIgniter\Router\RouteCollection $routes) {
             $routes->get('/', 'User::index');
             $routes->get('data', 'User::data');
+            $routes->match(['get', 'post'], 'create', 'User::create');
+            $routes->match(['get', 'post'], 'update/(:num)', 'User:update/$1');
+            $routes->get('delete/(:num)', 'User:delete/$1');
         });
 
         $routes->group('database', [
@@ -71,6 +74,7 @@ $routes->group('dashboard', [
                 'filter' => 'CI4XDashboardAuth:web,inside'
             ], function (\CodeIgniter\Router\RouteCollection $routes) {
                 $routes->get('permission', 'Permission::index');
+                $routes->get('role', 'Role::index');
             });
         });
     });

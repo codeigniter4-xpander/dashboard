@@ -562,6 +562,15 @@ class Controller extends \CI4Xpander\Controller
         ]);
     }
 
+    public function update($id = 0)
+    {
+        $this->_checkCRUD('update');
+
+        return $this->_render(function () {
+            
+        });
+    }
+
     public function create()
     {
         $this->_checkCRUD('create');

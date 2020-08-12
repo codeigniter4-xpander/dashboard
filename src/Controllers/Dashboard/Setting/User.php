@@ -18,6 +18,16 @@ class User extends \CI4Xpander_Dashboard\Controller
             'enable' => true,
             'base_url' => base_url('dashboard/setting/user'),
             'permission' => 'dashboardSettingUser',
+            'update' => [
+                'mainTable' => 'user'
+                // 'input' =>
+                //     'code',
+                //     'name',
+                //     'email',
+                //     'role',
+                //     'action'
+                // ]
+            ],
             'index' => [
                 'isDataTable' => true,
                 'isServerSide' => true,
@@ -59,6 +69,8 @@ class User extends \CI4Xpander_Dashboard\Controller
                     'code' => [
                         'type' => Type::TEXT,
                         'label' => 'Code',
+                        'value' => 'ABC',
+                        'default' => 'ABC'
                     ],
                     'name' => [
                         'type' => Type::TEXT,
@@ -69,7 +81,7 @@ class User extends \CI4Xpander_Dashboard\Controller
                         'label' => 'Email',
                     ],
                     'password' => [
-                        'type' => Type::TEXT,
+                        'type' => Type::PASSWORD,
                         'label' => 'Password',
                     ],
                     'roles[]' => [
@@ -79,6 +91,9 @@ class User extends \CI4Xpander_Dashboard\Controller
                             'url' => base_url('dashboard/api/setting/role-and-permission/role'),
                         ],
                         'multipleValue' => true,
+                        'checked' => [
+                            'developer', 'administrator'
+                        ]
                     ],
                     // 'crudTemplate' => [
                     //     'type' => Type::CHECKBOX,
@@ -117,28 +132,47 @@ class User extends \CI4Xpander_Dashboard\Controller
 
     protected function _action_create()
     {
-        return $this->_actionTransaction(function () {
-            $data = Input::filter($this->request->getPost());
+        if ($this->validate([
+            'code' => 'required',
+            'name' => 'required',
+            'email' => 'required',
+            'password' => 'required',
+            'roles' => 'required',
+            'level' => 'required|is_natural_no_zero|less_than[100]'
+        ])) {
+            return $this->_actionTransaction(function () {
+                $data = Input::filter($this->request->getPost());
 
-            $activeStatus = Status::create()->where('code', 'active')->first();
+                $activeStatus = Status::create()->where('code', 'active')->first();
 
-            ModelsUser::create()->insert([
-                'code' => $data['code'],
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'password' => $data['password'],
-                'status_id' => $activeStatus->id
-            ]);
+                $iduser = ModelsUser::create()->insert([
+                    'code' => $data['code'],
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'password' => $data['password'],
+                    'status_id' => $activeStatus->id
+                ]);
 
-            // $roleRole = Role::create();
-            // foreach ($data['roles'] as $role) {
-            //     $roleRole->insert([
-            //         'user_id',
-            //         'role_id'
-            //     ]);
-            // }
+                // foreach ($data['roles'] as $role) {
+                //     modelRole->insert([
+                //         'user_id',
+                //         'role_id' => $role,
+                //         'status_id'
+                //     ])
+                // }
 
-        }, 'create');
+                // $roleRole = Role::create();
+                // foreach ($data['roles'] as $role) {
+                //     $roleRole->insert([
+                //         'user_id',
+                //         'role_id'
+                //     ]);
+                // }
+
+            }, 'create');
+        }else {
+            \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Gagal menyimpan data. Mohon periksa data yang anda masukkan.');
+        }
     }
 
 }

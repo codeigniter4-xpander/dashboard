@@ -19,6 +19,12 @@ class Role extends \CI4Xpander_Dashboard\Controller
             'enable' => true,
             'base_url' => base_url('dashboard/setting/role-and-permission/role'),
             'permission' => 'dashboardSettingRole',
+            'update' => [
+                'mainTable' => 'role'
+            ],
+            'delete' => [
+                'mainTable' => 'role'
+            ],
             'index' => [
                 'isDataTable' => true,
                 'isServerSide' => true,

@@ -1,6 +1,8 @@
 <?php namespace CI4Xpander_Dashboard;
 
+use CI4Xpander_AdminLTE\View\Component\Form\Type;
 use CI4Xpander_Dashboard\Helpers\CRUD;
+use CodeIgniter\Exceptions\PageNotFoundException;
 
 /**
  * @property \CI4Xpander_Dashboard\View $view
@@ -566,9 +568,107 @@ class Controller extends \CI4Xpander\Controller
     {
         $this->_checkCRUD('update');
 
-        return $this->_render(function () {
+        return $this->_render(function () use ($id) {
+            /**
+             * @var \CodeIgniter\Database\BaseBuilder
+             */
+            $query = $this->CRUD['index']['query'];
             
+            $mainTable = '';
+            if (isset($this->CRUD['update']['mainTable'])) {
+                $mainTable = $this->CRUD['update']['mainTable'] . '.';
+            }
+
+            $query->where("{$mainTable}id", $id);
+
+            $item = $query->get()->getRow();
+
+            if (is_null($item)) {
+                throw new PageNotFoundException();
+            }
+
+            $this->view->data->page->title = lang('CI4Xpander_Dashboard.update.page.title', [
+                ($this->view->data->page->title ?: $this->name)
+            ]);
+
+            if (isset($this->CRUD['form'])) {
+                if (isset($this->CRUD['update']['input'])) {
+                    foreach ($this->CRUD['form']['input'] as $inputName => $input) {
+                        if (!in_array($inputName, $this->CRUD['update']['input'])) {
+                            unset($this->CRUD['form']['input'][$inputName]);
+                        }
+                    }
+                }
+
+                foreach ($this->CRUD['form']['input'] as $inputName => $input) {
+                    if (isset($item->{$inputName})) {
+                        if ($input['type'] == Type::TEXT) {
+                            $this->CRUD['form']['input'][$inputName]['value'] = $item->{$inputName};
+                        } elseif ($input['type'] == Type::DROPDOWN_AUTOCOMPLETE) {
+                            $item->{$inputName}['input']['value'];
+                        }
+                    }
+                }
+
+                // foreach ($this->CRUD['form']['input'] as $inputName => $input) {
+                //     if (isset($item->{$inputName})) {
+                //         if ($input['type'] == Type::DROPDOWN_AUTOCOMPLETE) {
+                //             $this->CRUD['form']['input'][$inputName]['value'] = $item->{$inputName};
+                //         } elseif ($input['type'] == Type::DROPDOWN_AUTOCOMPLETE) {
+                            
+                //         }
+                //     }
+                // }
+
+                $form = \CI4Xpander_AdminLTE\View\Component\Form::create();
+                $form->action = $this->CRUD['base_url'] . '/update';
+                $form->hidden = [
+                    '_action' => 'update'
+                ];
+                $form->input = $this->CRUD['form']['input'] ?? [];
+                $form->script = $this->CRUD['form']['script'] ?? null;
+                $form->request = $this->request;
+                $form->validator = $this->validator;
+
+                $formBox = \CI4Xpander_AdminLTE\View\Component\Box::create(\CI4Xpander_AdminLTE\View\Component\Box\Data::create([
+                    'body' => $form
+                ]));
+
+                $addButton = \CI4Xpander_AdminLTE\View\Component\Button::create(\CI4Xpander_AdminLTE\View\Component\Button\Data::create([
+                    'text' => lang('CI4Xpander_Dashboard.general.cancel'),
+                    'isBlock' => true,
+                    'type' => 'danger',
+                    'isLink' => true,
+                    'url' => $this->CRUD['base_url']
+                ]));
+
+                $formBox->data->head->tool = $addButton;
+
+                $this->view->data->template->content = \Config\Services::dashboardMessage()->render() . $formBox->render();
+            }
+
+            return $this->view->render();
+
         });
+    }
+
+    public function delete($id = 0)
+    {
+        $this->_checkCRUD('delete');
+        
+        return $this->_render(function () use ($id) {
+            /**
+             * @var \CodeIgniter\Database\BaseBuilder
+             */
+            $query = $this->CRUD['index']['query'];
+            
+            $mainTable = '';
+            if (isset($this->CRUD['delete']['mainTable'])) {
+                $mainTable = $this->CRUD['delete']['mainTable'] . '.';
+            }
+
+            $query->where("{$mainTable}id", $id);
+        }
     }
 
     public function create()

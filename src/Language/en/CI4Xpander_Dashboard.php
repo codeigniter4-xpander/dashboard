@@ -23,4 +23,9 @@ return [
             'title' => 'Create New {0}',
         ],
     ],
+    'update' => [
+        'page' => [
+            'title' => 'Update {0}',
+        ],
+    ],
 ];

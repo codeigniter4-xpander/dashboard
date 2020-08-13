@@ -18,6 +18,9 @@ class Permission extends \CI4Xpander_Dashboard\Controller
             'enable' => true,
             'base_url' => base_url('dashboard/setting/role-and-permission/permission'),
             'permission' => 'dashboardSettingPermission',
+            'update' => [
+                'mainTable' => 'permission'
+            ],
             'index' => [
                 'isDataTable' => true,
                 'isServerSide' => true,
@@ -67,17 +70,27 @@ class Permission extends \CI4Xpander_Dashboard\Controller
 
     protected function _action_create()
     {
-        return $this->_actionTransaction(function () {
-            $data = Input::filter($this->request->getPost());
+        if ($this->validate([
+            'code' => 'required',
+            'name' => 'required',
+            'description' => 'required',
+            'level' => 'required|is_natural_no_zero|less_than[100]'
+        ])) {
 
-            $activeStatus = Status::create()->where('code', 'active')->first();
+            return $this->_actionTransaction(function () {
+                $data = Input::filter($this->request->getPost());
 
-            ModelsPermission::create()->insert([
-                'code' => $data['code'],
-                'name' => $data['name'],
-                'description' => $data['description'],
-                'status_id' => $activeStatus->id
-            ]);
-        }, 'create');
+                $activeStatus = Status::create()->where('code', 'active')->first();
+
+                ModelsPermission::create()->insert([
+                    'code' => $data['code'],
+                    'name' => $data['name'],
+                    'description' => $data['description'],
+                    'status_id' => $activeStatus->id
+                ]);
+            }, 'create');
+        } else {
+            \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Gagal menyimpan data. Mohon periksa data yang anda masukkan.');
+        }
     }
 }

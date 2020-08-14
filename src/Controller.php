@@ -601,11 +601,36 @@ class Controller extends \CI4Xpander\Controller
                 }
 
                 foreach ($this->CRUD['form']['input'] as $inputName => $input) {
+                    $inputName = str_replace('[', '', $inputName);
+                    $inputName = str_replace(']', '', $inputName);
+
                     if (isset($item->{$inputName})) {
                         if ($input['type'] == Type::TEXT) {
                             $this->CRUD['form']['input'][$inputName]['value'] = $item->{$inputName};
                         } elseif ($input['type'] == Type::DROPDOWN_AUTOCOMPLETE) {
-                            $item->{$inputName}['input']['value'];
+                            $isMultipleValue = $input['multipleValue'] ?? false;
+                            if ($isMultipleValue) {
+                                $n = $inputName . '_id';
+                                $options = [];
+                                $optionsSelected = [];
+                                $i = 0;
+                                $decodedName = json_decode($item->{$inputName}, true);
+                                $decodedId = json_decode($item->{$n}, true);
+                                foreach ($decodedName as $j) {
+                                    $options[$decodedId[$i]] = $j;
+                                    $optionsSelected[] = $decodedId[$i];
+                                    $i++;
+                                }
+
+                                $this->CRUD['form']['input']["{$inputName}[]"]['options'] = $options;
+                                $this->CRUD['form']['input']["{$inputName}[]"]['selected'] = $optionsSelected;
+                            } else {
+                                $n = $inputName . '_id';
+                                $this->CRUD['form']['input'][$inputName]['options'] = [
+                                    $item->{$n} = $item->{$$inputName}
+                                ];
+                                $this->CRUD['form']['input'][$inputName]['selected'] = $item->{$inputName};
+                            }
                         }
                     }
                 }
@@ -668,7 +693,7 @@ class Controller extends \CI4Xpander\Controller
             }
 
             $query->where("{$mainTable}id", $id);
-        }
+        });
     }
 
     public function create()

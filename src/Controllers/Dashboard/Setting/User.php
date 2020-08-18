@@ -19,37 +19,44 @@ class User extends \CI4Xpander_Dashboard\Controller
             'enable' => true,
             'base_url' => base_url('dashboard/setting/user'),
             'permission' => 'dashboardSettingUser',
-            'update' => [
-                'mainTable' => 'user'
-                // 'input' =>
-                //     'code',
-                //     'name',
-                //     'email',
-                //     'role',
-                //     'action'
-                // ]
-            ],
+            'model' => \CI4Xpander_Dashboard\Models\User::class,
             'index' => [
                 'isDataTable' => true,
                 'isServerSide' => true,
                 'isMapResultServerSide' => true,
-                'query' => \Config\Database::connect()->table('user')
-                    ->select('user.*')
-                    ->select("(
-                        SELECT ARRAY_TO_JSON(ARRAY_AGG(" . Builder::protect('role.name') . "))
-                        FROM " . Builder::protect('role') . "
-                        JOIN " . Builder::protect('user_role') . " ON " . Builder::protect('user_role.role_id') . " = " . Builder::protect('role.id') . "
-                        WHERE " . Builder::protect('user_role.user_id') . " = " . Builder::protect('user.id') . "
-                    ) " . Builder::protect('roles'), false)
-                    ->select("(
-                        SELECT ARRAY_TO_JSON(ARRAY_AGG(" . Builder::protect('role.id') . "))
-                        FROM " . Builder::protect('role') . "
-                        JOIN " . Builder::protect('user_role') . " ON " . Builder::protect('user_role.role_id') . " = " . Builder::protect('role.id') . "
-                        WHERE " . Builder::protect('user_role.user_id') . " = " . Builder::protect('user.id') . "
-                    ) " . Builder::protect('roles_id'), false)
-                    ->join('status user_status', 'user_status.id = user.status_id')
-                    ->where('user.deleted_at', null)
-                    ->where('user_status.code', 'active'),
+                'query' => function (\CodeIgniter\Database\BaseConnection $builder, \CI4Xpander\Model $model) {
+                    return $model->builder()
+                        ->select('user.*')
+                        ->select(
+                            Builder::subQuery(
+                                $builder->table('role')
+                                    ->select(
+                                        'ARRAY_TO_JSON(ARRAY_AGG(ROW_TO_JSON(' . Builder::protect('role') . ')))',
+                                        false
+                                    )
+                                    ->join('user_role', 'user_role.role_id = role.id')
+                                    ->where(Builder::protect('user_role.user_id'), Builder::protect('user.id'), false),
+                                'the_roles'
+                            ),
+                            false
+                        )
+                        ->select("(
+                            SELECT ARRAY_TO_JSON(ARRAY_AGG(" . Builder::protect('role.name') . "))
+                            FROM " . Builder::protect('role') . "
+                            JOIN " . Builder::protect('user_role') . " ON " . Builder::protect('user_role.role_id') . " = " . Builder::protect('role.id') . "
+                            WHERE " . Builder::protect('user_role.user_id') . " = " . Builder::protect('user.id') . "
+                        ) " . Builder::protect('roles'), false)
+                        ->select("(
+                            SELECT ARRAY_TO_JSON(ARRAY_AGG(" . Builder::protect('role.id') . "))
+                            FROM " . Builder::protect('role') . "
+                            JOIN " . Builder::protect('user_role') . " ON " . Builder::protect('user_role.role_id') . " = " . Builder::protect('role.id') . "
+                            WHERE " . Builder::protect('user_role.user_id') . " = " . Builder::protect('user.id') . "
+                        ) " . Builder::protect('roles_id'), false)
+                        ->join('status user_status', 'user_status.id = user.status_id')
+                        ->where('user.code !=', 'system')
+                        ->where('user.deleted_at', null)
+                        ->where('user_status.code', 'active');
+                },
                 'columns' => [
                     'code' => 'Code',
                     'name' => 'Name',
@@ -69,9 +76,6 @@ class User extends \CI4Xpander_Dashboard\Controller
             ],
 
             'form' => [
-                // 'script' => [
-                //     'file' => 'CI4Xpander_Dashboard\Views\Script\Dashboard\Setting',
-                // ],
                 'input' => [
                     'code' => [
                         'type' => Type::TEXT,
@@ -97,25 +101,6 @@ class User extends \CI4Xpander_Dashboard\Controller
                         ],
                         'multipleValue' => true
                     ],
-                    // where code != 'system'
-                    // where code = 'administrator'
-                    // 'crudTemplate' => [
-                    //     'type' => Type::CHECKBOX,
-                    //     'label' => 'Role',
-                    //     'options' => [
-                    //         'create' => 'Create',
-                    //         'read' => 'Read',
-                    //         'update' => 'Update',
-                    //         'delete' => 'Delete'
-                    //     ],
-                    //     'column' => 4,
-                    //     'containerClass' => [
-                    //         'hidden'
-                    //     ],
-                    //     'containerAttr' => [
-                    //         'data-crud' => ''
-                    //     ]
-                    // ],
                     'action' => [
                         'type' => Type::BUTTON_GROUP,
                         'buttons' => [

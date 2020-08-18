@@ -292,6 +292,10 @@ class Controller extends \CI4Xpander\Controller
                 $this->view->data->template->content = $message . $box->render();
             }
 
+            $this->view->data->crud->baseUrl = $this->CRUD['base_url'];
+
+            \Config\Services::viewScript()->add(view('CI4Xpander_AdminLTE\Views\Script\ModalDeleteConfirmation'));
+
             return $this->view->render();
         });
     }
@@ -344,8 +348,32 @@ class Controller extends \CI4Xpander\Controller
             }
         }
 
+        $table = null;
+
+        /** @var \CI4Xpander\Model */
+        $model = $this->CRUD['model'] ?? null;
+
+        if (!is_null($model)) {
+            if (!is_a($model, \CI4Xpander\Model::class)) {
+                $model = $model::create();
+            }
+            $table = $model->getTable();
+        }
+
         $columns = $this->CRUD['index']['columns'];
-        $query = $this->CRUD['index']['query']->getCompiledSelect();
+
+        $query = null;
+        if (isset($this->CRUD['index']['query'])) {
+            $query = $this->CRUD['index']['query'];
+
+            if (is_callable($query)) {
+                $query = $query(\Config\Database::connect(), $model);
+            }
+        } else {
+            if (!is_null($model)) {
+                $query = $model->builder();
+            }
+        }
 
         $draw = $this->request->getGet('draw');
         $columnsGet = $this->request->getGet('columns');
@@ -360,11 +388,17 @@ class Controller extends \CI4Xpander\Controller
         /** @var \CodeIgniter\Database\BaseBuilder */
         $recordsFiltered = \Config\Database::connect()->table('ci4x_dashboard_data_temporary_table');
 
-        $data->from("({$query}) ci4x_dashboard_data_temporary_table", true);
-        $recordsFiltered->from("({$query}) ci4x_dashboard_data_temporary_table", true);
+        if (!is_string($query)) {
+            $compiledQuery = $query->getCompiledSelect();
+        } else {
+            $compiledQuery = $query;
+        }
+
+        $data->from("({$compiledQuery}) ci4x_dashboard_data_temporary_table", true);
+        $recordsFiltered->from("({$compiledQuery}) ci4x_dashboard_data_temporary_table", true);
 
         $data->select("*, '' AS action", false);
-        $recordsTotal = \Config\Database::connect()->table('ci4x_dashboard_data_temporary_table')->from("({$query}) ci4x_dashboard_data_temporary_table", true);
+        $recordsTotal = \Config\Database::connect()->table('ci4x_dashboard_data_temporary_table')->from("({$compiledQuery}) ci4x_dashboard_data_temporary_table", true);
 
         if (isset($search)) {
             if (isset($search['value'])) {
@@ -545,11 +579,30 @@ class Controller extends \CI4Xpander\Controller
                 }
 
                 if ($action['update']) {
-                    $row->update = anchor("{$this->CRUD['base_url']}/update/{$value->id}", 'Update');
+                    $row->update = \CI4Xpander_AdminLTE\View\Component\Button::create(\CI4Xpander_AdminLTE\View\Component\Button\Data::create([
+                        'text' => 'Update',
+                        'isBlock' => true,
+                        'type' => 'warning',
+                        'style' => 'warning',
+                        'isLink' => true,
+                        'url' => "{$this->CRUD['base_url']}/update/{$value->id}"
+                    ]))->render();
                 }
 
                 if ($action['delete']) {
-                    $row->delete = anchor("{$this->CRUD['base_url']}/delete/{$value->id}", 'Delete');
+                    $row->delete = \CI4Xpander_AdminLTE\View\Component\Button::create(\CI4Xpander_AdminLTE\View\Component\Button\Data::create([
+                        'text' => 'Delete',
+                        'isBlock' => false,
+                        'type' => 'button',
+                        'style' => 'danger',
+                        'isLink' => false,
+                        'attributes' => [
+                            'data-toggle' => 'modal',
+                            'data-target' => '#modalDelete',
+                            'data-id' => $value->id
+                        ]
+                        // 'url' => $this->CRUD['base_url']
+                    ]))->render();
                 }
 
                 $result[] = $row;
@@ -569,17 +622,32 @@ class Controller extends \CI4Xpander\Controller
         $this->_checkCRUD('update');
 
         return $this->_render(function () use ($id) {
-            /**
-             * @var \CodeIgniter\Database\BaseBuilder
-             */
-            $query = $this->CRUD['index']['query'];
-            
-            $mainTable = '';
-            if (isset($this->CRUD['update']['mainTable'])) {
-                $mainTable = $this->CRUD['update']['mainTable'] . '.';
+            $table = null;
+
+            /** @var \CI4Xpander\Model */
+            $model = $this->CRUD['model'] ?? null;
+
+            if (!is_null($model)) {
+                if (!is_a($model, \CI4Xpander\Model::class)) {
+                    $model = $model::create();
+                }
+                $table = $model->getTable();
             }
 
-            $query->where("{$mainTable}id", $id);
+            $query = null;
+            if (isset($this->CRUD['index']['query'])) {
+                $query = $this->CRUD['index']['query'];
+
+                if (is_callable($query)) {
+                    $query = $query($model);
+                }
+            } else {
+                if (!is_null($model)) {
+                    $query = $model->builder();
+                }
+            }
+
+            $query->where("{$table}.id", $id);
 
             $item = $query->get()->getRow();
 
@@ -605,9 +673,20 @@ class Controller extends \CI4Xpander\Controller
                     $inputName = str_replace(']', '', $inputName);
 
                     if (isset($item->{$inputName})) {
-                        if ($input['type'] == Type::TEXT) {
-                            $this->CRUD['form']['input'][$inputName]['value'] = $item->{$inputName};
-                        } elseif ($input['type'] == Type::DROPDOWN_AUTOCOMPLETE) {
+                        $valueName = 'value';
+                        if (in_array($input['type'], [
+                            Type::SELECT, Type::DROPDOWN_AUTOCOMPLETE, Type::DROPDOWN
+                        ])) {
+                            $valueName = 'selected';
+                        } elseif (in_array($input['type'], [
+                            Type::CHECKBOX, Type::CHECKBOX_SINGLE, Type::RADIO
+                        ])) {
+                            $valueName = 'checked';
+                        }
+
+                        if (in_array($input['type'], [
+                            Type::SELECT, Type::DROPDOWN_AUTOCOMPLETE, Type::DROPDOWN
+                        ])) {
                             $isMultipleValue = $input['multipleValue'] ?? false;
                             if ($isMultipleValue) {
                                 $n = $inputName . '_id';
@@ -623,27 +702,19 @@ class Controller extends \CI4Xpander\Controller
                                 }
 
                                 $this->CRUD['form']['input']["{$inputName}[]"]['options'] = $options;
-                                $this->CRUD['form']['input']["{$inputName}[]"]['selected'] = $optionsSelected;
+                                $this->CRUD['form']['input']["{$inputName}[]"][$valueName] = $optionsSelected;
                             } else {
                                 $n = $inputName . '_id';
                                 $this->CRUD['form']['input'][$inputName]['options'] = [
                                     $item->{$n} = $item->{$$inputName}
                                 ];
-                                $this->CRUD['form']['input'][$inputName]['selected'] = $item->{$inputName};
+                                $this->CRUD['form']['input'][$inputName][$valueName] = $item->{$inputName};
                             }
+                        } else {
+                            $this->CRUD['form']['input'][$inputName][$valueName] = $item->{$inputName};
                         }
                     }
                 }
-
-                // foreach ($this->CRUD['form']['input'] as $inputName => $input) {
-                //     if (isset($item->{$inputName})) {
-                //         if ($input['type'] == Type::DROPDOWN_AUTOCOMPLETE) {
-                //             $this->CRUD['form']['input'][$inputName]['value'] = $item->{$inputName};
-                //         } elseif ($input['type'] == Type::DROPDOWN_AUTOCOMPLETE) {
-                            
-                //         }
-                //     }
-                // }
 
                 $form = \CI4Xpander_AdminLTE\View\Component\Form::create();
                 $form->action = $this->CRUD['base_url'] . '/update';
@@ -677,11 +748,23 @@ class Controller extends \CI4Xpander\Controller
         });
     }
 
-    public function delete($id = 0)
+    public function delete()
     {
         $this->_checkCRUD('delete');
         
-        return $this->_render(function () use ($id) {
+        if ($this->validate([
+            'id' => 'required|is_natural_no_zero'
+        ])) {
+            $data = \CI4Xpander\Helpers\Input::filter($this->request->getPost());
+
+            $id = $data['id'];
+
+            $table = null;
+            $model = $this->CRUD['model'] ?? null;
+            if (isset($model)) {
+                $table = $model::create()->getTable();
+            }
+
             /**
              * @var \CodeIgniter\Database\BaseBuilder
              */
@@ -693,7 +776,25 @@ class Controller extends \CI4Xpander\Controller
             }
 
             $query->where("{$mainTable}id", $id);
-        });
+
+            $item = $query->get()->getRow();
+
+            if (!is_null($item)) {
+                $methodName = '_action_delete';
+                if (method_exists($this, $methodName)) {
+                    $action = $this->{$methodName}($item);
+                    if (!is_null($action)) {
+                        return $action;
+                    }
+                }
+
+                return redirect()->to($this->CRUD['base_url']);
+            } else {
+                \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Item not found');
+            }
+        } else {
+            \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue($this->validation->listErrors());
+        }
     }
 
     public function create()
@@ -717,7 +818,7 @@ class Controller extends \CI4Xpander\Controller
                 $form->validator = $this->validator;
 
                 $formBox = \CI4Xpander_AdminLTE\View\Component\Box::create(\CI4Xpander_AdminLTE\View\Component\Box\Data::create([
-                    'body' => $form
+                    'body' => $form->render()
                 ]));
 
                 $addButton = \CI4Xpander_AdminLTE\View\Component\Button::create(\CI4Xpander_AdminLTE\View\Component\Button\Data::create([
@@ -728,7 +829,7 @@ class Controller extends \CI4Xpander\Controller
                     'url' => $this->CRUD['base_url']
                 ]));
 
-                $formBox->data->head->tool = $addButton;
+                $formBox->data->head->tool = $addButton->render();
 
                 $this->view->data->template->content = \Config\Services::dashboardMessage()->render() . $formBox->render();
             }

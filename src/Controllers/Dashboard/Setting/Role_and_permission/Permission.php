@@ -1,10 +1,6 @@
 <?php namespace CI4Xpander_Dashboard\Controllers\Dashboard\Setting\ROle_and_permission;
 
-use \CI4Xpander\Helpers\Database\Builder;
-use CI4Xpander\Helpers\Input;
 use CI4Xpander_AdminLTE\View\Component\Form\Type;
-use CI4Xpander_Dashboard\Models\Permission as ModelsPermission;
-use CI4Xpander_Dashboard\Models\Status;
 
 class Permission extends \CI4Xpander_Dashboard\Controller
 {
@@ -18,18 +14,18 @@ class Permission extends \CI4Xpander_Dashboard\Controller
             'enable' => true,
             'base_url' => base_url('dashboard/setting/role-and-permission/permission'),
             'permission' => 'dashboardSettingPermission',
-            'update' => [
-                'mainTable' => 'permission'
-            ],
+            'model' => \CI4Xpander_Dashboard\Models\Permission::class,
             'index' => [
                 'isDataTable' => true,
                 'isServerSide' => true,
                 'isMapResultServerSide' => true,
-                'query' => \Config\Database::connect()->table('permission')
-                    ->select('permission.*')
-                    ->join('status permission_status', 'permission_status.id = permission.status_id')
-                    ->where('permission.deleted_at', null)
-                    ->where('permission_status.code', 'active'),
+                'query' => function (\CI4Xpander\Model $model) {
+                    return $model
+                        ->select('permission.*')
+                        ->join('status permission_status', 'permission_status.id = permission.status_id')
+                        ->where('permission.deleted_at', null)
+                        ->where('permission_status.code', 'active');
+                },
                 'columns' => [
                     'code' => 'Code',
                     'name' => 'Name',
@@ -74,15 +70,13 @@ class Permission extends \CI4Xpander_Dashboard\Controller
             'code' => 'required',
             'name' => 'required',
             'description' => 'required',
-            'level' => 'required|is_natural_no_zero|less_than[100]'
         ])) {
-
             return $this->_actionTransaction(function () {
-                $data = Input::filter($this->request->getPost());
+                $data = \CI4Xpander\Helpers\Input::filter($this->request->getPost());
 
-                $activeStatus = Status::create()->where('code', 'active')->first();
+                $activeStatus = \CI4Xpander_Dashboard\Models\Status::create()->where('code', 'active')->first();
 
-                ModelsPermission::create()->insert([
+                \CI4Xpander_Dashboard\Models\Permission::create()->insert([
                     'code' => $data['code'],
                     'name' => $data['name'],
                     'description' => $data['description'],

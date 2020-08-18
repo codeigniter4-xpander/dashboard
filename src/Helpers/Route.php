@@ -8,6 +8,6 @@ class Route
 		$routes->get('data', "{$namespace}::data");
 		$routes->match(['get', 'post'], 'create', "{$namespace}::create");
 		$routes->match(['get', 'post'], 'update/(:num)', "{$namespace}::update/$1");
-		$routes->post('delete/(:num)', "{$namespace}::delete/$1");
+		$routes->delete('delete', "{$namespace}::delete");
     }
 }

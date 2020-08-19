@@ -2,12 +2,14 @@
 
 class Route
 {
-    public static function create(\CodeIgniter\Router\RouteCollection $routes, $namespace = '')
+    public static function create(\CodeIgniter\Router\RouteCollection $routes, $namespace = '', $url = null)
     {
-        $routes->get('/', "{$namespace}::index");
-		$routes->get('data', "{$namespace}::data");
-		$routes->match(['get', 'post'], 'create', "{$namespace}::create");
-		$routes->match(['get', 'post'], 'update/(:num)', "{$namespace}::update/$1");
-		$routes->delete('delete', "{$namespace}::delete");
+
+
+        $routes->get(isset($url) ? $url : '/', "{$namespace}::index");
+		$routes->get((isset($url) ? $url . '/' : '') . 'data', "{$namespace}::data");
+		$routes->match(['get', 'post'], (isset($url) ? $url . '/' : '') . 'create', "{$namespace}::create");
+		$routes->match(['get', 'put'], (isset($url) ? $url . '/' : '') . 'update/(:num)', "{$namespace}::update/$1");
+		$routes->delete((isset($url) ? $url . '/' : '') . 'delete', "{$namespace}::delete");
     }
 }

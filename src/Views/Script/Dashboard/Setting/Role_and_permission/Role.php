@@ -10,7 +10,6 @@ $('#<?= \CI4Xpander_AdminLTE\View\Component\Form::getInputID('permissions[]', [
     if (typeof crudAttr !== typeof undefined && crudAttr !== false) {
         crudList = $('#' + crudTemplate + '_container').data('crud');
         $.each(crudList, function (index, value) {
-            console.log(value);
             $('#' + value + '_container').remove();
         });
         crudList = [];
@@ -44,3 +43,24 @@ $('#<?= \CI4Xpander_AdminLTE\View\Component\Form::getInputID('permissions[]', [
 
     $('#' + crudTemplate + '_container').data('crud', crudList);
 });
+
+<?php if (isset($ci4x['crud']['item'])) : ?>
+$('#<?= \CI4Xpander_AdminLTE\View\Component\Form::getInputID('permissions[]', [
+    'type' => \CI4Xpander_AdminLTE\View\Component\Form\Type::DROPDOWN_AUTOCOMPLETE
+]); ?>').trigger('change');
+
+<?php foreach (json_decode($ci4x['crud']['item']->permissions) as $i) : ?>
+$('#<?= \CI4Xpander_AdminLTE\View\Component\Form::getInputID("crudTemplate{$i->id}Create", [
+    'type' => \CI4Xpander_AdminLTE\View\Component\Form\Type::CHECKBOX
+]); ?>').prop('checked', <?= $i->C ? 'true' : 'false' ?>);
+$('#<?= \CI4Xpander_AdminLTE\View\Component\Form::getInputID("crudTemplate{$i->id}Read", [
+    'type' => \CI4Xpander_AdminLTE\View\Component\Form\Type::CHECKBOX
+]); ?>').prop('checked', <?= $i->R ? 'true' : 'false' ?>);
+$('#<?= \CI4Xpander_AdminLTE\View\Component\Form::getInputID("crudTemplate{$i->id}Update", [
+    'type' => \CI4Xpander_AdminLTE\View\Component\Form\Type::CHECKBOX
+]); ?>').prop('checked', <?= $i->U ? 'true' : 'false' ?>);
+$('#<?= \CI4Xpander_AdminLTE\View\Component\Form::getInputID("crudTemplate{$i->id}Delete", [
+    'type' => \CI4Xpander_AdminLTE\View\Component\Form\Type::CHECKBOX
+]); ?>').prop('checked', <?= $i->D ? 'true' : 'false' ?>);
+<?php endforeach; ?>
+<?php endif; ?>

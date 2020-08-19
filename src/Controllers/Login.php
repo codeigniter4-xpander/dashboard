@@ -10,7 +10,7 @@ class Login extends \CI4Xpander\Controller
         helper('form');
 
         return $this->_render(function () {
-            return $this->view->render('Login');
+            return $this->_action() ?? $this->view->render('Login');
         });
     }
 

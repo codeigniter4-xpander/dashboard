@@ -3,6 +3,7 @@
 use CI4Xpander_AdminLTE\View\Component\Form\Type;
 use CI4Xpander_Dashboard\Helpers\CRUD;
 use CodeIgniter\Exceptions\PageNotFoundException;
+use Stringy\StaticStringy;
 
 /**
  * @property \CI4Xpander_Dashboard\View $view
@@ -19,7 +20,10 @@ class Controller extends \CI4Xpander\Controller
 
     protected $CRUD = [
         'enable' => false,
-        'base_url' => ''
+        'base_url' => '',
+        'form' => [
+            'input' => []
+        ]
     ];
 
     protected $permissionRuleSet = [
@@ -581,7 +585,7 @@ class Controller extends \CI4Xpander\Controller
                 if ($action['update']) {
                     $row->update = \CI4Xpander_AdminLTE\View\Component\Button::create(\CI4Xpander_AdminLTE\View\Component\Button\Data::create([
                         'text' => 'Update',
-                        'isBlock' => true,
+                        'isBlock' => false,
                         'type' => 'warning',
                         'style' => 'warning',
                         'isLink' => true,
@@ -639,7 +643,7 @@ class Controller extends \CI4Xpander\Controller
                 $query = $this->CRUD['index']['query'];
 
                 if (is_callable($query)) {
-                    $query = $query($model);
+                    $query = $query(\Config\Database::connect(), $model);
                 }
             } else {
                 if (!is_null($model)) {
@@ -655,6 +659,8 @@ class Controller extends \CI4Xpander\Controller
                 throw new PageNotFoundException();
             }
 
+            $this->_action($item);
+
             $this->view->data->page->title = lang('CI4Xpander_Dashboard.update.page.title', [
                 ($this->view->data->page->title ?: $this->name)
             ]);
@@ -669,8 +675,9 @@ class Controller extends \CI4Xpander\Controller
                 }
 
                 foreach ($this->CRUD['form']['input'] as $inputName => $input) {
-                    $inputName = str_replace('[', '', $inputName);
-                    $inputName = str_replace(']', '', $inputName);
+                    if (StaticStringy::endsWith($inputName, '[]')) {
+                        $inputName = StaticStringy::removeRight($inputName, '[]');
+                    }
 
                     if (isset($item->{$inputName})) {
                         $valueName = 'value';
@@ -684,30 +691,60 @@ class Controller extends \CI4Xpander\Controller
                             $valueName = 'checked';
                         }
 
+                        $dataTypeFromDatabase = $input['dataTypeFromDatabase'] ?? 'raw';
+
                         if (in_array($input['type'], [
                             Type::SELECT, Type::DROPDOWN_AUTOCOMPLETE, Type::DROPDOWN
                         ])) {
                             $isMultipleValue = $input['multipleValue'] ?? false;
                             if ($isMultipleValue) {
-                                $n = $inputName . '_id';
                                 $options = [];
                                 $optionsSelected = [];
-                                $i = 0;
-                                $decodedName = json_decode($item->{$inputName}, true);
-                                $decodedId = json_decode($item->{$n}, true);
-                                foreach ($decodedName as $j) {
-                                    $options[$decodedId[$i]] = $j;
-                                    $optionsSelected[] = $decodedId[$i];
-                                    $i++;
+
+                                if ($dataTypeFromDatabase == 'json') {
+                                    $decodedData = json_decode($item->{$inputName});
+                                    foreach ($decodedData as $j) {
+                                        $options[is_object($j) ? $j->id : $j['id']] = is_object($j) ? ($j->label ?? $j->name) : ($j['label'] ?? $j['name']);
+                                        $optionsSelected[] = is_object($j) ? $j->id : $j['id'];
+                                    }
+                                } elseif ($dataTypeFromDatabase == 'column_id_pair') {
+                                    $n = $inputName . '_id';
+                                    $i = 0;
+                                    $decodedName = json_decode($item->{$inputName}, true);
+                                    $decodedId = json_decode($item->{$n}, true);
+                                    foreach ($decodedName as $j) {
+                                        $options[$decodedId[$i]] = $j;
+                                        $optionsSelected[] = $decodedId[$i];
+                                        $i++;
+                                    }
+                                } else {
+                                    $options = [
+                                        $item->{$inputName} => $item->{$inputName}
+                                    ];
+                                    $optionsSelected[] = $item->{$inputName};
                                 }
 
                                 $this->CRUD['form']['input']["{$inputName}[]"]['options'] = $options;
                                 $this->CRUD['form']['input']["{$inputName}[]"][$valueName] = $optionsSelected;
                             } else {
-                                $n = $inputName . '_id';
-                                $this->CRUD['form']['input'][$inputName]['options'] = [
-                                    $item->{$n} = $item->{$$inputName}
-                                ];
+                                $options = [];
+                                if ($dataTypeFromDatabase == 'json') {
+                                    $decodedData = json_decode($item->{$inputName});
+                                    $options = [
+                                        is_object($decodedData) ? $decodedData->id : $decodedData['id'] => is_object($decodedData) ? ($decodedData->label ?? $decodedData->name) : ($decodedData['label'] ?? $decodedData['name'])
+                                    ];
+                                } elseif ($dataTypeFromDatabase == 'column_id_pair') {
+                                    $n = $inputName . '_id';
+                                    $options = [
+                                        $item->{$n} => $item->{$inputName}
+                                    ];
+                                } else {
+                                    $options = [
+                                        $item->{$inputName} => $item->{$inputName}
+                                    ];
+                                }
+
+                                $this->CRUD['form']['input'][$inputName]['options'] = $options;
                                 $this->CRUD['form']['input'][$inputName][$valueName] = $item->{$inputName};
                             }
                         } else {
@@ -717,17 +754,25 @@ class Controller extends \CI4Xpander\Controller
                 }
 
                 $form = \CI4Xpander_AdminLTE\View\Component\Form::create();
-                $form->action = $this->CRUD['base_url'] . '/update';
+                $form->action = $this->CRUD['base_url'] . "/update/{$item->id}";
+                $form->method = 'PUT';
                 $form->hidden = [
                     '_action' => 'update'
                 ];
                 $form->input = $this->CRUD['form']['input'] ?? [];
-                $form->script = $this->CRUD['form']['script'] ?? null;
+
+                if (isset($this->CRUD['form']['script'])) {
+                    $this->CRUD['form']['script']['data']['ci4x']['crud']['enable'] = true;
+                    $this->CRUD['form']['script']['data']['ci4x']['crud']['page'] = 'update';
+                    $this->CRUD['form']['script']['data']['ci4x']['crud']['item'] = $item;
+                    $form->script = $this->CRUD['form']['script'];
+                }
+
                 $form->request = $this->request;
                 $form->validator = $this->validator;
 
                 $formBox = \CI4Xpander_AdminLTE\View\Component\Box::create(\CI4Xpander_AdminLTE\View\Component\Box\Data::create([
-                    'body' => $form
+                    'body' => $form->render()
                 ]));
 
                 $addButton = \CI4Xpander_AdminLTE\View\Component\Button::create(\CI4Xpander_AdminLTE\View\Component\Button\Data::create([
@@ -738,7 +783,7 @@ class Controller extends \CI4Xpander\Controller
                     'url' => $this->CRUD['base_url']
                 ]));
 
-                $formBox->data->head->tool = $addButton;
+                $formBox->data->head->tool = $addButton->render();
 
                 $this->view->data->template->content = \Config\Services::dashboardMessage()->render() . $formBox->render();
             }
@@ -802,6 +847,8 @@ class Controller extends \CI4Xpander\Controller
         $this->_checkCRUD('create');
 
         return $this->_render(function () {
+            $this->_action();
+
             $this->view->data->page->title = lang('CI4Xpander_Dashboard.create.page.title', [
                 ($this->view->data->page->title ?: $this->name)
             ]);

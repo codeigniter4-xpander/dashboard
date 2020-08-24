@@ -1,4 +1,4 @@
-<?php namespace CI4Xpander_Dashboard\Controllers\Dashboard\Setting\ROle_and_permission;
+<?php namespace CI4Xpander_Dashboard\Controllers\Dashboard\Setting\Role_and_permission;
 
 use \CI4Xpander\Helpers\Database\Builder;
 use CI4Xpander\Helpers\Input;
@@ -24,22 +24,38 @@ class Role extends \CI4Xpander_Dashboard\Controller
                 'isDataTable' => true,
                 'isServerSide' => true,
                 'isMapResultServerSide' => true,
-                'query' => function (\CI4Xpander\Model $model) {
+                'query' => function (\CodeIgniter\Database\BaseConnection $builder, \CI4Xpander\Model $model) {
                     return $model->builder()
                         ->select('role.*')
-                        ->select("(" .
-                            \Config\Database::connect()->table('permission')
-                                ->select("ARRAY_TO_JSON(ARRAY_AGG(" . Builder::protect('permission.name') . "))", false)
-                                ->join('role_permission', 'role_permission.permission_id = permission.id')
-                                ->join('status permission_status', 'permission_status.id = permission.status_id')
-                                ->join('status role_permission_status', 'role_permission_status.id = role_permission.status_id')
-                                ->where('role_permission.role_id = role.id')
-                                ->where('permission.deleted_at', null)
-                                ->where('role_permission.deleted_at', null)
-                                ->where('permission_status.code', 'active')
-                                ->where('role_permission_status.code', 'active')
-                                ->getCompiledSelect()
-                        . ") permissions", false)
+                        ->select(Builder::subQuery(
+                            $builder->table('p')
+                                ->select('ARRAY_TO_JSON(
+                                    ARRAY_AGG(
+                                        ROW_TO_JSON(' . Builder::protect('p') . ')
+                                    )
+                                )', false)
+                                ->from(
+                                    Builder::subQuery(
+                                        $builder->table('permission')
+                                            ->select('permission.*')
+                                            ->select('role_permission.C')
+                                            ->select('role_permission.R')
+                                            ->select('role_permission.U')
+                                            ->select('role_permission.D')
+                                            ->join('role_permission', 'role_permission.permission_id = permission.id')
+                                            ->join('status permission_status', 'permission_status.id = permission.status_id')
+                                            ->join('status role_permission_status', 'role_permission_status.id = role_permission.status_id')
+                                            ->where('role_permission.role_id = role.id')
+                                            ->where('permission.deleted_at', null)
+                                            ->where('role_permission.deleted_at', null)
+                                            ->where('permission_status.code', 'active')
+                                            ->where('role_permission_status.code', 'active'),
+                                        'p'
+                                    ),
+                                    true
+                                ),
+                            'permissions'
+                        ), false)
                         ->join('status role_status', 'role_status.id = role.status_id')
                         ->where('role.code !=', 'system')
                         ->where('role.deleted_at', null)
@@ -56,7 +72,13 @@ class Role extends \CI4Xpander_Dashboard\Controller
                                 return '';
                             }
 
-                            return implode(', ', json_decode($value));
+                            $result = [];
+                            $decodedValue = json_decode($value);
+                            foreach ($decodedValue as $d) {
+                                $result[] = is_object($d) ? ($d->label ?? $d->name) : ($d['label'] ?? $d['name']);
+                            }
+
+                            return implode(', ', $result);
                         },
                     ],
                 ],
@@ -90,6 +112,7 @@ class Role extends \CI4Xpander_Dashboard\Controller
                             'url' => base_url('dashboard/api/setting/role-and-permission/permission'),
                         ],
                         'multipleValue' => true,
+                        'dataTypeFromDatabase' => 'json'
                     ],
                     'crudTemplate' => [
                         'type' => Type::CHECKBOX,

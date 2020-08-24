@@ -1,4 +1,4 @@
-<?php namespace CI4Xpander_Dashboard\Controllers\Dashboard\Setting\ROle_and_permission;
+<?php namespace CI4Xpander_Dashboard\Controllers\Dashboard\Setting\Role_and_permission;
 
 use CI4Xpander_AdminLTE\View\Component\Form\Type;
 
@@ -19,7 +19,7 @@ class Permission extends \CI4Xpander_Dashboard\Controller
                 'isDataTable' => true,
                 'isServerSide' => true,
                 'isMapResultServerSide' => true,
-                'query' => function (\CI4Xpander\Model $model) {
+                'query' => function (\CodeIgniter\Database\BaseConnection $builder, \CI4Xpander\Model $model) {
                     return $model
                         ->select('permission.*')
                         ->join('status permission_status', 'permission_status.id = permission.status_id')
@@ -67,9 +67,8 @@ class Permission extends \CI4Xpander_Dashboard\Controller
     protected function _action_create()
     {
         if ($this->validate([
-            'code' => 'required',
+            'code' => 'required|is_unique[permission.code]',
             'name' => 'required',
-            'description' => 'required',
         ])) {
             return $this->_actionTransaction(function () {
                 $data = \CI4Xpander\Helpers\Input::filter($this->request->getPost());
@@ -84,7 +83,19 @@ class Permission extends \CI4Xpander_Dashboard\Controller
                 ]);
             }, 'create');
         } else {
-            \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Gagal menyimpan data. Mohon periksa data yang anda masukkan.');
+            \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Form validation error');
+        }
+    }
+
+    protected function _action_update($item = null)
+    {
+        if ($this->validate([
+            'code' => "required|is_unique[permission.code,id,{$item->id}]",
+            'name' => 'required'
+        ])) {
+            d($this->request->getPost());
+        } else {
+            \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Form validation error');
         }
     }
 }

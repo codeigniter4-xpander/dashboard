@@ -31,26 +31,15 @@ $routes->group('dashboard', [
             'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting\Role_and_permission',
             'filter' => 'CI4XDashboardAuth:web,inside'
         ], function (\CodeIgniter\Router\RouteCollection $routes) {
-            $routes->get('role', 'Role::index');
-            $routes->get('role/data', 'Role::data');
-            $routes->match(['get', 'post'], 'role/create', 'Role::create');
-            $routes->match(['get', 'post'], 'role/update/(:num)', 'Role::update/$1');
-
-            $routes->get('permission', 'Permission::index');
-            $routes->get('permission/data', 'Permission::data');
-            $routes->match(['get', 'post'], 'permission/create', 'Permission::create');
-            $routes->match(['get', 'post'], 'permission/update/(:num)', 'Permission::update/$1');
+            \CI4Xpander_Dashboard\Helpers\Route::create($routes, 'Role', 'role');
+            \CI4Xpander_Dashboard\Helpers\Route::create($routes, 'Permission', 'permission');
         });
 
         $routes->group('user', [
             'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting',
             'filter' => 'CI4XDashboardAuth:web,inside'
         ], function (\CodeIgniter\Router\RouteCollection $routes) {
-            $routes->get('/', 'User::index');
-            $routes->get('data', 'User::data');
-            $routes->match(['get', 'post'], 'create', 'User::create');
-            $routes->match(['get', 'post'], 'update/(:num)', 'User::update/$1');
-            $routes->get('delete/(:num)', 'User::delete/$1');
+            \CI4Xpander_Dashboard\Helpers\Route::create($routes, 'User');
         });
 
         $routes->group('database', [

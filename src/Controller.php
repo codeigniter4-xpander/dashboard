@@ -2,6 +2,7 @@
 
 use CI4Xpander_AdminLTE\View\Component\Form\Type;
 use CI4Xpander_Dashboard\Helpers\CRUD;
+use CodeIgniter\Database\BaseBuilder;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use Stringy\StaticStringy;
 
@@ -659,7 +660,10 @@ class Controller extends \CI4Xpander\Controller
                 throw new PageNotFoundException();
             }
 
-            $this->_action($item);
+            $_action = $this->_action($item);
+            if (!is_null($_action)) {
+                return $_action;
+            }
 
             $this->view->data->page->title = lang('CI4Xpander_Dashboard.update.page.title', [
                 ($this->view->data->page->title ?: $this->name)
@@ -696,6 +700,7 @@ class Controller extends \CI4Xpander\Controller
                         if (in_array($input['type'], [
                             Type::SELECT, Type::DROPDOWN_AUTOCOMPLETE, Type::DROPDOWN
                         ])) {
+                            $isAjax = isset($input['ajax']);
                             $isMultipleValue = $input['multipleValue'] ?? false;
                             if ($isMultipleValue) {
                                 $options = [];
@@ -728,20 +733,31 @@ class Controller extends \CI4Xpander\Controller
                                 $this->CRUD['form']['input']["{$inputName}[]"][$valueName] = $optionsSelected;
                             } else {
                                 $options = [];
+                                if (isset($input['options'])) {
+                                    $op = $input['options'];
+                                    if (is_callable($op)) {
+                                        $op = $op();
+                                    }
+
+                                    $options = $op;
+                                }
+
                                 if ($dataTypeFromDatabase == 'json') {
                                     $decodedData = json_decode($item->{$inputName});
-                                    $options = [
-                                        is_object($decodedData) ? $decodedData->id : $decodedData['id'] => is_object($decodedData) ? ($decodedData->label ?? $decodedData->name) : ($decodedData['label'] ?? $decodedData['name'])
-                                    ];
+
+                                    if (!array_key_exists(is_object($decodedData) ? $decodedData->id : $decodedData['id'], $options)) {
+                                        $options[is_object($decodedData) ? $decodedData->id : $decodedData['id']] = is_object($decodedData) ? ($decodedData->label ?? $decodedData->name) : ($decodedData['label'] ?? $decodedData['name']);
+                                    }
                                 } elseif ($dataTypeFromDatabase == 'column_id_pair') {
                                     $n = $inputName . '_id';
-                                    $options = [
-                                        $item->{$n} => $item->{$inputName}
-                                    ];
+
+                                    if (!array_key_exists($item->{$n}, $options)) {
+                                        $options[$item->{$n}] = $item->{$inputName};
+                                    }
                                 } else {
-                                    $options = [
-                                        $item->{$inputName} => $item->{$inputName}
-                                    ];
+                                    if (!array_key_exists($item->{$inputName}, $options)) {
+                                        $options[$item->{$inputName}] = $item->{$inputName};
+                                    }
                                 }
 
                                 $this->CRUD['form']['input'][$inputName]['options'] = $options;
@@ -805,32 +821,30 @@ class Controller extends \CI4Xpander\Controller
             $id = $data['id'];
 
             $table = null;
+
+            /** @var \CI4Xpander\Model */
             $model = $this->CRUD['model'] ?? null;
-            if (isset($model)) {
-                $table = $model::create()->getTable();
+
+            if (!is_null($model)) {
+                if (!is_a($model, \CI4Xpander\Model::class)) {
+                    $model = $model::create();
+                }
+                $table = $model->getTable();
             }
 
             /**
              * @var \CodeIgniter\Database\BaseBuilder
              */
             $query = $this->CRUD['index']['query'];
-            
-            $mainTable = '';
-            if (isset($this->CRUD['delete']['mainTable'])) {
-                $mainTable = $this->CRUD['delete']['mainTable'] . '.';
-            }
 
-            $query->where("{$mainTable}id", $id);
+            $query->where("{$table}.id", $id);
 
             $item = $query->get()->getRow();
 
             if (!is_null($item)) {
-                $methodName = '_action_delete';
-                if (method_exists($this, $methodName)) {
-                    $action = $this->{$methodName}($item);
-                    if (!is_null($action)) {
-                        return $action;
-                    }
+                $_action = $this->_action($item);
+                if (!is_null($_action)) {
+                    return $_action;
                 }
 
                 return redirect()->to($this->CRUD['base_url']);
@@ -847,7 +861,10 @@ class Controller extends \CI4Xpander\Controller
         $this->_checkCRUD('create');
 
         return $this->_render(function () {
-            $this->_action();
+            $_action = $this->_action();
+            if (!is_null($_action)) {
+                return $_action;
+            }
 
             $this->view->data->page->title = lang('CI4Xpander_Dashboard.create.page.title', [
                 ($this->view->data->page->title ?: $this->name)
@@ -894,6 +911,10 @@ class Controller extends \CI4Xpander\Controller
         if (!$this->CRUD['enable']) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forMethodNotFound("{$this->_reflectionClass->getName()}::{$method}");
         }
+        
+        if (!isset($this->CRUD['model'])) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forMethodNotFound("{$this->_reflectionClass->getName()}::{$method}");
+        }
 
         if (isset($this->CRUD['permission'])) {
             if (!$this->user->hasPermission($this->CRUD['permission'], $this->permissionRuleSet[$method])) {
@@ -907,17 +928,19 @@ class Controller extends \CI4Xpander\Controller
         if (isset($this->CRUD['form'])) {
             if (!is_null($function)) {
                 if (is_callable($function)) {
-                    \Config\Database::connect()->transStart();
-                    $function();
-                    \Config\Database::connect()->transComplete();
+                    $databaseConnection = \Config\Database::connect();
 
-                    if (\Config\Database::connect()->transStatus()) {
+                    $databaseConnection->transStart();
+                    $function();
+                    $databaseConnection->transComplete();
+
+                    if ($databaseConnection->transStatus()) {
                         return redirect()->to($this->CRUD['base_url'] . ($action == 'update' ? "/update/{$id}" : ''))->with('message', \CI4Xpander_Dashboard\Helpers\Message::create(
                             \CI4Xpander_Dashboard\Helpers\Message::SUCCESS,
                             'Success'
                         )->render());
                     } else {
-                        $error = \Config\Database::connect()->error();
+                        $error = $databaseConnection->error();
 
                         \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue("Error:<br/>{$error['message']} ({$error['code']})");
                     }

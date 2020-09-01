@@ -205,7 +205,7 @@ class Role extends \CI4Xpander_Dashboard\Controller
     protected function _action_delete($item = null)
     {
         return $this->_actionTransaction(function () use ($item) {
-            M ModelsRole::create()->delete($item->id);
+        ModelsRole::create()->delete($item->id);
         }, 'delete', $item->id);
     }
 

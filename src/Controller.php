@@ -839,7 +839,6 @@ class Controller extends \CI4Xpander\Controller
             $query = null;
             if (isset($this->CRUD['index']['query'])) {
                 $query = $this->CRUD['index']['query'];
-
                 if (is_callable($query)) {
                     $query = $query(\Config\Database::connect(), $model);
                 }

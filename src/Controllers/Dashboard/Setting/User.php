@@ -64,6 +64,9 @@ class User extends \CI4Xpander_Dashboard\Controller
                     'roles' => [
                         'label' => 'Roles',
                         'value' => function ($value, $row) {
+                            // if (is_null($value)){
+                            //     return '';
+                            // }
                             $value = json_decode($value);
                             $view = '<ul>';
                             foreach ($value as $role) {

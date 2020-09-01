@@ -835,10 +835,10 @@ class Controller extends \CI4Xpander\Controller
             /**
              * @var \CodeIgniter\Database\BaseBuilder
              */
-
             $query = null;
             if (isset($this->CRUD['index']['query'])) {
                 $query = $this->CRUD['index']['query'];
+
                 if (is_callable($query)) {
                     $query = $query(\Config\Database::connect(), $model);
                 }
@@ -847,9 +847,6 @@ class Controller extends \CI4Xpander\Controller
                     $query = $model->builder();
                 }
             }
-
-            $query = $this->CRUD['index']['query'];
-
 
             $query->where("{$table}.id", $id);
 

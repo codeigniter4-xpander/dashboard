@@ -835,7 +835,18 @@ class Controller extends \CI4Xpander\Controller
             /**
              * @var \CodeIgniter\Database\BaseBuilder
              */
-            $query = $this->CRUD['index']['query'];
+            $query = null;
+            if (isset($this->CRUD['index']['query'])) {
+                $query = $this->CRUD['index']['query'];
+
+                if (is_callable($query)) {
+                    $query = $query(\Config\Database::connect(), $model);
+                }
+            } else {
+                if (!is_null($model)) {
+                    $query = $model->builder();
+                }
+            }
 
             $query->where("{$table}.id", $id);
 
@@ -876,6 +887,7 @@ class Controller extends \CI4Xpander\Controller
                 $form->hidden = [
                     '_action' => 'create'
                 ];
+                $form->isMultipart = $this->CRUD['form']['isMultipart'] ?? false;
                 $form->input = $this->CRUD['form']['input'] ?? [];
                 $form->script = $this->CRUD['form']['script'] ?? null;
                 $form->request = $this->request;

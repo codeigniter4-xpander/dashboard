@@ -93,9 +93,21 @@ class Permission extends \CI4Xpander_Dashboard\Controller
             'code' => "required|is_unique[permission.code,id,{$item->id}]",
             'name' => 'required'
         ])) {
-            d($this->request->getPost());
+            return $this->_actionTransaction(function () use ($item) {
+                $data = \CI4Xpander\Helpers\Input::filter($this->request->getPost());
+                \CI4Xpander_Dashboard\Models\Permission::create()->update($item->id, $data);
+            }, 'update', $item->id);
+            // d($this->request->getPost());
         } else {
             \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Form validation error');
         }
     }
+
+    protected function _action_delete($item = null)
+    {
+        return $this->_actionTransaction(function () use ($item) {
+            \CI4Xpander_Dashboard\Models\Permission::create()->delete($item->id);
+        }, 'delete', $item->id);
+    }
+
 }

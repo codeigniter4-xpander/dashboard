@@ -185,4 +185,28 @@ class Role extends \CI4Xpander_Dashboard\Controller
             \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Gagal menyimpan data. Mohon periksa data yang anda masukkan.');
         }
     }
+
+    protected function _action_update($item = null)
+    {
+        if ($this->validate([
+            'code' => 'required',
+            'name' => 'required',
+            'level' => 'required|is_natural_no_zero|less_than[100]'
+        ])) {
+            return $this->_actionTransaction(function () use ($item) {
+                $data = Input::filter($this->request->getPost());
+                ModelsRole::create()->update($item->id, $data);
+            }, 'update', $item->id);
+        }else {
+            \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Gagal menyimpan data. Mohon periksa data yang anda masukkan.');
+        }
+    }
+
+    protected function _action_delete($item = null)
+    {
+        return $this->_actionTransaction(function () use ($item) {
+        ModelsRole::create()->delete($item->id);
+        }, 'delete', $item->id);
+    }
+
 }

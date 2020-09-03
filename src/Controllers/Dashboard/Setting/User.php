@@ -64,6 +64,9 @@ class User extends \CI4Xpander_Dashboard\Controller
                     'roles' => [
                         'label' => 'Roles',
                         'value' => function ($value, $row) {
+                            // if (is_null($value)){
+                            //     return '';
+                            // }
                             $value = json_decode($value);
                             $view = '<ul>';
                             foreach ($value as $role) {
@@ -158,7 +161,26 @@ class User extends \CI4Xpander_Dashboard\Controller
 
     protected function _action_update($item = null)
     {
-        
+        if ($this->validate([
+            'code' => 'required',
+            'name' => 'required',
+            'password' => 'required',
+            // 'roles' => 'required',
+            // 'level' => 'required|is_natural_no_zero|less_than[100]'
+        ])) {
+            return $this->_actionTransaction(function () use ($item) {
+                $data = Input::filter($this->request->getPost());
+                ModelsUser::create()->update($item->id, $data);
+            }, 'update', $item->id);
+        }else {
+            \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Gagal menyimpan data. Mohon periksa data yang anda masukkan.');
+        }
     }
 
+    protected function _action_delete($item = null)
+    {
+        return $this->_actionTransaction(function () use ($item) {
+            ModelsUser::create()->delete($item->id);
+        }, 'delete', $item->id);
+    }
 }

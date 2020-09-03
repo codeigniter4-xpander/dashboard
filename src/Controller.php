@@ -887,6 +887,7 @@ class Controller extends \CI4Xpander\Controller
                 $form->hidden = [
                     '_action' => 'create'
                 ];
+                $form->isMultipart = $this->CRUD['form']['isMultipart'] ?? false;
                 $form->input = $this->CRUD['form']['input'] ?? [];
                 $form->script = $this->CRUD['form']['script'] ?? null;
                 $form->request = $this->request;

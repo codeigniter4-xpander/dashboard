@@ -64,9 +64,10 @@ class User extends \CI4Xpander_Dashboard\Controller
                     'roles' => [
                         'label' => 'Roles',
                         'value' => function ($value, $row) {
-                            // if (is_null($value)){
-                            //     return '';
-                            // }
+                            if (is_null($value)){
+                                return '';
+                            }
+
                             $value = json_decode($value);
                             $view = '<ul>';
                             foreach ($value as $role) {
@@ -128,8 +129,8 @@ class User extends \CI4Xpander_Dashboard\Controller
             'code' => 'required',
             'name' => 'required',
             'password' => 'required',
-            // 'roles' => 'required',
-            // 'level' => 'required|is_natural_no_zero|less_than[100]'
+            'roles' => 'required',
+            'level' => 'required|is_natural_no_zero|less_than[100]'
         ])) {
             return $this->_actionTransaction(function () {
                 $data = Input::filter($this->request->getPost());
@@ -164,9 +165,8 @@ class User extends \CI4Xpander_Dashboard\Controller
         if ($this->validate([
             'code' => 'required',
             'name' => 'required',
-            'password' => 'required',
-            // 'roles' => 'required',
-            // 'level' => 'required|is_natural_no_zero|less_than[100]'
+            'roles' => 'required',
+            'level' => 'required|is_natural_no_zero|less_than[100]'
         ])) {
             return $this->_actionTransaction(function () use ($item) {
                 $data = Input::filter($this->request->getPost());

@@ -52,16 +52,16 @@ $routes->group('dashboard', [
         });
     });
 
-    $routes->group('api', [
-        'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Api',
+    $routes->group('ajax', [
+        'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Ajax',
         'filter' => 'CI4XDashboardAuth:web,inside'
     ], function (\CodeIgniter\Router\RouteCollection $routes) {
         $routes->group('setting', [
-            'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Api\Setting',
+            'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Ajax\Setting',
             'filter' => 'CI4XDashboardAuth:web,inside'
         ], function (\CodeIgniter\Router\RouteCollection $routes) {
             $routes->group('role-and-permission', [
-                'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Api\Setting\Role_and_permission',
+                'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Ajax\Setting\Role_and_permission',
                 'filter' => 'CI4XDashboardAuth:web,inside'
             ], function (\CodeIgniter\Router\RouteCollection $routes) {
                 $routes->get('permission', 'Permission::index');

@@ -1,4 +1,4 @@
-<?php namespace CI4Xpander_Dashboard\Controllers\Dashboard\Api\Setting\Role_and_permission;
+<?php namespace CI4Xpander_Dashboard\Controllers\Dashboard\Ajax\Setting\Role_and_permission;
 
 class Permission extends \CI4Xpander_API\Controller
 {

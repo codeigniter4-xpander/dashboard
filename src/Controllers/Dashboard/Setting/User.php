@@ -101,7 +101,7 @@ class User extends \CI4Xpander_Dashboard\Controller
                         'type' => Type::DROPDOWN_AUTOCOMPLETE,
                         'label' => 'Roles',
                         'ajax' => [
-                            'url' => base_url('dashboard/api/setting/role-and-permission/role?where_not=code.system&where=code.administrator'),
+                            'url' => base_url('dashboard/ajax/setting/role-and-permission/role?where_not=code.system&where=code.administrator'),
                         ],
                         'multipleValue' => true
                     ],

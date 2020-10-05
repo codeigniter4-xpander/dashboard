@@ -109,7 +109,7 @@ class Role extends \CI4Xpander_Dashboard\Controller
                         'type' => Type::DROPDOWN_AUTOCOMPLETE,
                         'label' => 'Permissions',
                         'ajax' => [
-                            'url' => base_url('dashboard/api/setting/role-and-permission/permission'),
+                            'url' => base_url('dashboard/ajax/setting/role-and-permission/permission'),
                         ],
                         'multipleValue' => true,
                         'dataTypeFromDatabase' => 'json'

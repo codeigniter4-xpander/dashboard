@@ -1,4 +1,4 @@
-<?php namespace CI4Xpander_Dashboard\Controllers\Dashboard\Api\Setting\Role_and_permission;
+<?php namespace CI4Xpander_Dashboard\Controllers\Dashboard\Ajax\Setting\Role_and_permission;
 
 use CI4Xpander\Helpers\Input;
 

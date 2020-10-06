@@ -162,11 +162,17 @@ class Controller extends \CI4Xpander\Controller
 
                         $actionColumns = [];
                         if ($action['update']) {
-                            $actionColumns['update'] = '';
+                            $actionColumns['update'] = [
+                                'searchable' => false,
+                                'orderable' => false
+                            ];
                         }
 
                         if ($action['delete']) {
-                            $actionColumns['delete'] = '';
+                            $actionColumns['delete'] = [
+                                'searchable' => false,
+                                'orderable' => false
+                            ];
                         }
 
                         $columns = array_merge(

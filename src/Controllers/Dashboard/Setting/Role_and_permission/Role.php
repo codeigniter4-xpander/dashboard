@@ -85,7 +85,9 @@ class Role extends \CI4Xpander_Dashboard\Controller
             ],
             'form' => [
                 'script' => [
-                    'file' => 'CI4Xpander_Dashboard\Views\Script\Dashboard\Setting\Role_and_permission\Role',
+                    [
+                        'file' => 'CI4Xpander_Dashboard\Views\Script\Dashboard\Setting\Role_and_permission\Role',
+                    ]
                 ],
                 'input' => [
                     'code' => [

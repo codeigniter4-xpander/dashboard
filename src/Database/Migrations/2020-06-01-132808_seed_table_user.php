@@ -23,7 +23,7 @@ class SeedTableUser extends \CI4Xpander\Migration
             'name' => 'Developer',
             'password' => \Config\Services::hashPassword(env('ci4xpander.user.developer.first_password', '1234567890')),
         ], [
-            'developer'
+            'user', 'developer'
         ]);
 
         \CI4Xpander_Dashboard\Helpers\Database\Table\User::create([
@@ -32,7 +32,7 @@ class SeedTableUser extends \CI4Xpander\Migration
             'name' => 'Administrator',
             'password' => \Config\Services::hashPassword(env('ci4xpander.user.administrator.first_password', '1234567890')),
         ], [
-            'administrator'
+            'user', 'administrator'
         ]);
 
         $this->db->transComplete();

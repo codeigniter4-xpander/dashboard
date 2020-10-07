@@ -19,9 +19,6 @@ class SeedTableRole extends \CI4Xpander\Migration
             'description' => 'Developer',
             'level' => 1,
         ], [
-            'login' => [
-                'R' => true
-            ],
             'dashboard' => [
                 'C' => true, 'R' => true, 'U' => true, 'D' => true
             ],
@@ -63,9 +60,6 @@ class SeedTableRole extends \CI4Xpander\Migration
             'description' => 'Administrator',
             'level' => 10,
         ], [
-            'login' => [
-                'R' => true
-            ],
             'dashboard' => [
                 'C' => true, 'R' => true, 'U' => true, 'D' => true
             ],

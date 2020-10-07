@@ -81,6 +81,21 @@ class User extends \CI4Xpander_Dashboard\Controller
 
             'form' => [
                 'input' => [
+                    'roles[]' => [
+                        'type' => Type::DROPDOWN_AUTOCOMPLETE,
+                        'label' => 'Roles',
+                        'ajax' => [
+                            'url' => base_url('dashboard/ajax/setting/role-and-permission/role?where_not=code.system&where=code.administrator'),
+                        ],
+                        'multipleValue' => true,
+                        'options' => function () {
+                            if ($this->request->getPost('roles') != null) {
+                                return \CI4Xpander_AdminLTE\View\Component\Form\Dropdown::buildOptions(\Config\Database::connect()->table('role')->select('id')->select('name label')->whereIn('id', $this->request->getPost('roles'))->get()->getResult());
+                            } else {
+                                return [];
+                            }
+                        }
+                    ],
                     'code' => [
                         'type' => Type::TEXT,
                         'label' => 'Code',
@@ -97,13 +112,9 @@ class User extends \CI4Xpander_Dashboard\Controller
                         'type' => Type::PASSWORD,
                         'label' => 'Password',
                     ],
-                    'roles[]' => [
-                        'type' => Type::DROPDOWN_AUTOCOMPLETE,
-                        'label' => 'Roles',
-                        'ajax' => [
-                            'url' => base_url('dashboard/ajax/setting/role-and-permission/role?where_not=code.system&where=code.administrator'),
-                        ],
-                        'multipleValue' => true
+                    'password_confirmation' => [
+                        'type' => Type::PASSWORD,
+                        'label' => 'Password Confirmation',
                     ],
                     'action' => [
                         'type' => Type::BUTTON_GROUP,
@@ -128,9 +139,10 @@ class User extends \CI4Xpander_Dashboard\Controller
         if ($this->validate([
             'code' => 'required',
             'name' => 'required',
+            'email' => 'required|valid_email',
             'password' => 'required',
+            'password_confirmation' => 'required|matches[password]',
             'roles' => 'required',
-            'level' => 'required|is_natural_no_zero|less_than[100]'
         ])) {
             return $this->_actionTransaction(function () {
                 $data = Input::filter($this->request->getPost());

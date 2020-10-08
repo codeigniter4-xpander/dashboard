@@ -10,10 +10,14 @@ class CRUD
             } if (is_array($label['value'])) {
                 $subValue = '<ul>';
                 foreach ($label['value'] as $subName => $subLabel) {
-                    if (is_object($data)) {
-                        $subValue .= "<li>{$data->{$subName}}</li>";
+                    if (is_callable($subLabel)) {
+                        $subValue .= '<li>' .  $subLabel(is_object($data) ? $data->{$subName} : $data[$subName], $data) . '</li>';
                     } else {
-                        $subValue .= "<Li>{$data[$subName]}</li>";
+                        if (is_object($data)) {
+                            $subValue .= "<li>" . $data->{$subName} . "</li>";
+                        } else {
+                            $subValue .= "<Li>" . $data[$subName] . "</li>";
+                        }
                     }
                 }
                 return $subValue . '</ul>';

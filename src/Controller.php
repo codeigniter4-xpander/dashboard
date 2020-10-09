@@ -941,23 +941,42 @@ class Controller extends \CI4Xpander\Controller
         }
     }
 
-    protected function _actionTransaction($function = null, $action = '', $id = 0)
+    protected function _actionTransaction($function = null, $action = '', $id = 0, $manual = false)
     {
         if (isset($this->CRUD['form'])) {
             if (!is_null($function)) {
                 if (is_callable($function)) {
                     $databaseConnection = \Config\Database::connect();
 
-                    $databaseConnection->transStart();
+                    if ($manual) {
+                        $databaseConnection->transBegin();
+                    } else {
+                        $databaseConnection->transStart();
+                    }
+
                     $function();
-                    $databaseConnection->transComplete();
+
+                    if ($manual) {
+
+                    } else {
+                        $databaseConnection->transComplete();
+                    }
 
                     if ($databaseConnection->transStatus()) {
+                        if ($manual) {
+                            $databaseConnection->transCommit();
+                        }
+
                         return redirect()->to($this->CRUD['base_url'] . ($action == 'update' ? "/update/{$id}" : ''))->with('message', \CI4Xpander_Dashboard\Helpers\Message::create(
-                            \CI4Xpander_Dashboard\Helpers\Message::SUCCESS,
-                            'Success'
-                        )->render());
+                                \CI4Xpander_Dashboard\Helpers\Message::SUCCESS,
+                                'Success'
+                            )->render()
+                        );
                     } else {
+                        if ($manual) {
+                            $databaseConnection->transRollback();
+                        }
+
                         $error = $databaseConnection->error();
 
                         \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue("Error:<br/>{$error['message']} ({$error['code']})");

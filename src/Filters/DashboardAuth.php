@@ -24,6 +24,23 @@ class DashboardAuth extends \CI4Xpander\Filters\Auth
                 \Config\Services::modelTracker()->setDeletedBy(0);
                 return redirect('login');
             }
+        } elseif (in_array('ajax', $params)) {
+            if (in_array('outside', $params)) {
+                if ($this->session->has('user')) {
+                }
+            } elseif (in_array('inside', $params)) {
+                if (!$this->session->has('user')) {
+                    $this->session->destroy();
+                    \Config\Services::modelTracker()->setCreatedBy(0);
+                    \Config\Services::modelTracker()->setUpdatedBy(0);
+                    \Config\Services::modelTracker()->setDeletedBy(0);
+                }
+            } else {
+                $this->session->destroy();
+                \Config\Services::modelTracker()->setCreatedBy(0);
+                \Config\Services::modelTracker()->setUpdatedBy(0);
+                \Config\Services::modelTracker()->setDeletedBy(0);
+            }
         } else {
             $this->session->destroy();
             \Config\Services::modelTracker()->setCreatedBy(0);

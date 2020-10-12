@@ -54,6 +54,7 @@ class Controller extends \CI4Xpander\Controller
             ->where('ur.user_id', $this->user->id)
             ->orderBy('menu.level', 'ASC')
             ->orderBy('menu.sequence_position', 'ASC')
+            ->groupBy('menu.id')
             ->findAll();
 
         $this->view->data->template->menu->items = $this->_buildMenuTree($grantedMenu);

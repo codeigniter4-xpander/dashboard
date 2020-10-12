@@ -4,13 +4,6 @@ class DashboardAuth extends \CI4Xpander\Filters\Auth
 {
     use \CodeIgniter\API\ResponseTrait;
 
-    public $reponse;
-
-    public function __construct()
-    {
-        $this->response = \Config\Services::response();
-    }
-
     public function before(\CodeIgniter\HTTP\RequestInterface $request, $params = null)
     {
         if (in_array('web', $params)) {
@@ -36,7 +29,7 @@ class DashboardAuth extends \CI4Xpander\Filters\Auth
         } elseif (in_array('ajax', $params)) {
             if (in_array('outside', $params)) {
                 if ($this->session->has('user')) {
-                    return $this->failUnauthorized();
+                    return \Config\Services::response()->failUnauthorized();
                 }
             } elseif (in_array('inside', $params)) {
                 if (!$this->session->has('user')) {
@@ -44,14 +37,8 @@ class DashboardAuth extends \CI4Xpander\Filters\Auth
                     \Config\Services::modelTracker()->setCreatedBy(0);
                     \Config\Services::modelTracker()->setUpdatedBy(0);
                     \Config\Services::modelTracker()->setDeletedBy(0);
-                    $this->failUnauthorized();
+                    \Config\Services::response()->failUnauthorized();
                 }
-            } else {
-                $this->session->destroy();
-                \Config\Services::modelTracker()->setCreatedBy(0);
-                \Config\Services::modelTracker()->setUpdatedBy(0);
-                \Config\Services::modelTracker()->setDeletedBy(0);
-                $this->failUnauthorized();
             }
         } else {
             $this->session->destroy();

@@ -10,6 +10,10 @@ class DashboardAuth extends \CI4Xpander\Filters\Auth
             if (in_array('outside', $params)) {
                 if ($this->session->has('user')) {
                     return redirect('dashboard');
+                } else {
+                    \Config\Services::modelTracker()->setCreatedBy(0);
+                    \Config\Services::modelTracker()->setUpdatedBy(0);
+                    \Config\Services::modelTracker()->setDeletedBy(0);
                 }
             } elseif (in_array('inside', $params)) {
                 if (!$this->session->has('user')) {
@@ -18,6 +22,11 @@ class DashboardAuth extends \CI4Xpander\Filters\Auth
                     \Config\Services::modelTracker()->setUpdatedBy(0);
                     \Config\Services::modelTracker()->setDeletedBy(0);
                     return redirect('login');
+                } else {
+                    $user = $this->session->user;
+                    \Config\Services::modelTracker()->setCreatedBy($user->id);
+                    \Config\Services::modelTracker()->setUpdatedBy($user->id);
+                    \Config\Services::modelTracker()->setDeletedBy($user->id);
                 }
             } else {
                 $this->session->destroy();
@@ -38,6 +47,11 @@ class DashboardAuth extends \CI4Xpander\Filters\Auth
                     \Config\Services::modelTracker()->setUpdatedBy(0);
                     \Config\Services::modelTracker()->setDeletedBy(0);
                     \Config\Services::response()->failUnauthorized();
+                } else {
+                    $user = $this->session->user;
+                    \Config\Services::modelTracker()->setCreatedBy($user->id);
+                    \Config\Services::modelTracker()->setUpdatedBy($user->id);
+                    \Config\Services::modelTracker()->setDeletedBy($user->id);
                 }
             }
         } else {

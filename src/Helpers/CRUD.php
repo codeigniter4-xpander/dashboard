@@ -23,9 +23,9 @@ class CRUD
                 return $subValue . '</ul>';
             } else {
                 if (is_object($data)) {
-                    return $data->{$label['value']};
+                    return $data->{$name};
                 } else {
-                    return $data[$label['value']];
+                    return $data[$name];
                 }
             }
         } else {

@@ -10,7 +10,7 @@ class SeedTableUser extends \CI4Xpander\Migration
 
         \CI4Xpander_Dashboard\Helpers\Database\Table\User::create([
             'code' => 'system',
-            'email' => 'system@yourdomain.com',
+            'email' => env('ci4xpander.dashboard.user.system.email', 'system@yourdomain.com'),
             'name' => 'System',
             'password' => \Config\Services::hashPassword(random_string('sha1')),
         ], [
@@ -19,18 +19,18 @@ class SeedTableUser extends \CI4Xpander\Migration
 
         \CI4Xpander_Dashboard\Helpers\Database\Table\User::create([
             'code' => 'developer',
-            'email' => 'developer@yourdomain.com',
+            'email' => env('ci4xpander.dashboard.user.developer.email', 'developer@yourdomain.com'),
             'name' => 'Developer',
-            'password' => \Config\Services::hashPassword(env('ci4xpander.user.developer.first_password', '1234567890')),
+            'password' => \Config\Services::hashPassword(env('ci4xpander.dashboard.user.developer.first_password', '1234567890')),
         ], [
             'user', 'developer'
         ]);
 
         \CI4Xpander_Dashboard\Helpers\Database\Table\User::create([
             'code' => 'administrator',
-            'email' => 'administrator@yourdomain.com',
+            'email' => env('ci4xpander.dashboard.user.administrator.email', 'administrator@yourdomain.com'),
             'name' => 'Administrator',
-            'password' => \Config\Services::hashPassword(env('ci4xpander.user.administrator.first_password', '1234567890')),
+            'password' => \Config\Services::hashPassword(env('ci4xpander.dashboard.user.administrator.first_password', '1234567890')),
         ], [
             'user', 'administrator'
         ]);

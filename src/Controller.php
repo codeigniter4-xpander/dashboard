@@ -559,9 +559,15 @@ class Controller extends \CI4Xpander\Controller
                             $colKey = $columnsGet[intval($columnOrder['column'])]['data'];
                             if (is_array($columns[$colKey])) {
                                 if (isset($columns[$colKey]['value'])) {
-                                    foreach ($columns[$colKey]['value'] as $field => $name) {
-                                        $data->orderBy(is_string($field) ? $field : $name, $columnOrder['dir']);
+                                    if (is_array($columns[$colKey]['value'])) {
+                                        foreach ($columns[$colKey]['value'] as $field => $name) {
+                                            $data->orderBy(is_string($field) ? $field : $name, $columnOrder['dir']);
+                                        }
+                                    } elseif (is_string($columns[$colKey]['value'])) {
+                                        $data->orderBy($columns[$colKey]['value'], $columnOrder['dir']);
                                     }
+                                } else {
+                                    $data->orderBy($colKey, $columnOrder['dir']);
                                 }
                             } else {
                                 $data->orderBy($columnsGet[intval($columnOrder['column'])]['data'], $columnOrder['dir']);

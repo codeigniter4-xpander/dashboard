@@ -120,6 +120,7 @@ class Controller extends \CI4Xpander\Controller
             if (isset($this->CRUD['index'])) {
                 $action = array_merge([
                     'create' => true,
+                    'read' => true,
                     'update' => true,
                     'delete' => true,
                 ], $this->CRUD['action'] ?? []);
@@ -128,6 +129,10 @@ class Controller extends \CI4Xpander\Controller
                     $permissionToCheck = [];
                     if ($action['create']) {
                         $permissionToCheck[] = 'C';
+                    }
+
+                    if ($action['read']) {
+                        $permissionToCheck[] = 'R';
                     }
 
                     if ($action['update']) {
@@ -142,6 +147,10 @@ class Controller extends \CI4Xpander\Controller
 
                     if ($action['create']) {
                         $action['create'] = $permission->C;
+                    }
+
+                    if ($action['read']) {
+                        $action['read'] = $permission->R;
                     }
 
                     if ($action['update']) {
@@ -161,31 +170,76 @@ class Controller extends \CI4Xpander\Controller
                     if ($this->CRUD['index']['isDataTable']) {
                         $ID = "{$this->_canonicName}_DataTable";
 
-                        $actionColumns = [];
+                        $rowActions = [];
+
+                        if ($action['read']) {
+                            $rowActions[] = 'read';
+                        }
+
                         if ($action['update']) {
-                            $actionColumns['update'] = [
-                                'searchable' => false,
-                                'orderable' => false
-                            ];
+                            $rowActions[] = 'update';
                         }
 
                         if ($action['delete']) {
-                            $actionColumns['delete'] = [
-                                'searchable' => false,
-                                'orderable' => false
-                            ];
+                            $rowActions[] = 'delete';
                         }
 
                         $columns = array_merge(
                             $this->CRUD['index']['columns'],
-                            $actionColumns
+                            count($rowActions) > 0 ? [
+                                'ci4x_dashboard_row_actions' => [
+                                    'label' => 'Actions',
+                                    'searchable' => false,
+                                    'orderable' => false,
+                                ]
+                            ] : []
                         );
 
                         $table = \CI4Xpander_AdminLTE\View\Component\Table::create();
                         $table->data->isDataTable = true;
                         $table->data->id = $ID;
                         $table->data->columns = $columns;
-                        // $table->data->rows = $this->CRUD['index']['query']->get()->getResult();
+
+                        if (isset($this->CRUD['index']['isServerSide'])) {
+                            if (!$this->CRUD['index']['isServerSide']) {
+                                /** @var \CI4Xpander\Model */
+                                $model = $this->CRUD['model'] ?? null;
+    
+                                if (!is_null($model)) {
+                                    if (!is_a($model, \CI4Xpander\Model::class)) {
+                                        $model = $model::create();
+                                    }
+                                    $table = $model->getTable();
+                                }
+    
+                                $query = null;
+                                if (isset($this->CRUD['index']['query'])) {
+                                    $query = $this->CRUD['index']['query'];
+
+                                    if (is_callable($query)) {
+                                        $query = $query(\Config\Database::connect(), $model);
+                                    }
+                                } else {
+                                    if (!is_null($model)) {
+                                        $query = $model->builder();
+                                    }
+                                }
+
+                                /** @var \CodeIgniter\Database\BaseBuilder */
+                                $data = \Config\Database::connect()->table('ci4x_dashboard_data_temporary_table');
+
+                                if (!is_string($query)) {
+                                    $compiledQuery = $query->getCompiledSelect();
+                                } else {
+                                    $compiledQuery = $query;
+                                }
+
+                                $data->from("({$compiledQuery}) ci4x_dashboard_data_temporary_table", true);
+                                $data->select("*, '' AS ci4x_dashboard_row_actions", false);
+
+                                $table->data->rows = $data->get()->getResult();
+                            }
+                        }
 
                         \Config\Services::viewScript()->add(view('CI4Xpander_AdminLTE\Views\Script\DataTable', [
                             'id' => $ID,
@@ -333,14 +387,20 @@ class Controller extends \CI4Xpander\Controller
         }
 
         $action = array_merge([
+            'read' => true,
             'update' => true,
             'delete' => true,
         ], $this->CRUD['action'] ?? []);
 
-        unset($action['insert']);
+        unset($action['create']);
 
         if (isset($this->CRUD['permission'])) {
             $permissionToCheck = [];
+
+            if ($action['read']) {
+                $permissionToCheck[] = 'R';
+            }
+
             if ($action['update']) {
                 $permissionToCheck[] = 'U';
             }
@@ -350,6 +410,10 @@ class Controller extends \CI4Xpander\Controller
             }
 
             $permission = $this->user->getPermission($this->CRUD['permission'], $permissionToCheck);
+
+            if ($action['read']) {
+                $action['read'] = $permission->R;
+            }
 
             if ($action['update']) {
                 $action['update'] = $permission->U;
@@ -409,7 +473,7 @@ class Controller extends \CI4Xpander\Controller
         $data->from("({$compiledQuery}) ci4x_dashboard_data_temporary_table", true);
         $recordsFiltered->from("({$compiledQuery}) ci4x_dashboard_data_temporary_table", true);
 
-        $data->select("*, '' AS action", false);
+        $data->select("*, '' AS ci4x_dashboard_row_actions", false);
         $recordsTotal = \Config\Database::connect()->table('ci4x_dashboard_data_temporary_table')->from("({$compiledQuery}) ci4x_dashboard_data_temporary_table", true);
 
         if (isset($search)) {
@@ -596,10 +660,23 @@ class Controller extends \CI4Xpander\Controller
                     $row->{$field} = CRUD::renderField($value, $field, $column);
                 }
 
+                $rowActions = [];
+
+                if ($action['read']) {
+                    $rowActions[] = \CI4Xpander_AdminLTE\View\Component\Button::create(\CI4Xpander_AdminLTE\View\Component\Button\Data::create([
+                        'text' => 'Detail',
+                        'isBlock' => true,
+                        'type' => 'primary',
+                        'style' => 'primary',
+                        'isLink' => true,
+                        'url' => "{$this->CRUD['base_url']}/detail/{$value->id}"
+                    ]))->render();
+                }
+
                 if ($action['update']) {
-                    $row->update = \CI4Xpander_AdminLTE\View\Component\Button::create(\CI4Xpander_AdminLTE\View\Component\Button\Data::create([
+                    $rowActions[] = \CI4Xpander_AdminLTE\View\Component\Button::create(\CI4Xpander_AdminLTE\View\Component\Button\Data::create([
                         'text' => 'Update',
-                        'isBlock' => false,
+                        'isBlock' => true,
                         'type' => 'warning',
                         'style' => 'warning',
                         'isLink' => true,
@@ -608,9 +685,9 @@ class Controller extends \CI4Xpander\Controller
                 }
 
                 if ($action['delete']) {
-                    $row->delete = \CI4Xpander_AdminLTE\View\Component\Button::create(\CI4Xpander_AdminLTE\View\Component\Button\Data::create([
+                    $rowActions[] = \CI4Xpander_AdminLTE\View\Component\Button::create(\CI4Xpander_AdminLTE\View\Component\Button\Data::create([
                         'text' => 'Delete',
-                        'isBlock' => false,
+                        'isBlock' => true,
                         'type' => 'button',
                         'style' => 'danger',
                         'isLink' => false,
@@ -621,6 +698,10 @@ class Controller extends \CI4Xpander\Controller
                         ]
                         // 'url' => $this->CRUD['base_url']
                     ]))->render();
+                }
+
+                if (count($rowActions) > 0) {
+                    $row->ci4x_dashboard_row_actions = implode('', $rowActions);
                 }
 
                 $result[] = $row;

@@ -83,7 +83,7 @@ class Permission extends \CI4Xpander_Dashboard\Controller
                 ]);
             }, 'create');
         } else {
-            \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Form validation error');
+            \Config\Services::message()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Form validation error');
         }
     }
 
@@ -99,7 +99,7 @@ class Permission extends \CI4Xpander_Dashboard\Controller
             }, 'update', $item->id);
             // d($this->request->getPost());
         } else {
-            \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Form validation error');
+            \Config\Services::message()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Form validation error');
         }
     }
 

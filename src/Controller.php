@@ -353,7 +353,7 @@ class Controller extends \CI4Xpander\Controller
                     $box->data->head->tool = $addButton;
                 }
 
-                $message = \Config\Services::dashboardMessage()->render();
+                $message = \Config\Services::message()->render();
 
                 $this->view->data->template->content = $message . $box->render();
             }
@@ -895,7 +895,7 @@ class Controller extends \CI4Xpander\Controller
 
                 $formBox->data->head->tool = $addButton->render();
 
-                $this->view->data->template->content = \Config\Services::dashboardMessage()->render() . $formBox->render();
+                $this->view->data->template->content = \Config\Services::message()->render() . $formBox->render();
             }
 
             return $this->view->render();
@@ -954,10 +954,10 @@ class Controller extends \CI4Xpander\Controller
 
                 return redirect()->to($this->CRUD['base_url']);
             } else {
-                \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Item not found');
+                \Config\Services::message()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Item not found');
             }
         } else {
-            \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue($this->validation->listErrors());
+            \Config\Services::message()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue($this->validation->listErrors());
         }
     }
 
@@ -1001,7 +1001,7 @@ class Controller extends \CI4Xpander\Controller
 
                 $formBox->data->head->tool = $addButton->render();
 
-                $this->view->data->template->content = \Config\Services::dashboardMessage()->render() . $formBox->render();
+                $this->view->data->template->content = \Config\Services::message()->render() . $formBox->render();
             }
 
             return $this->view->render();
@@ -1067,7 +1067,7 @@ class Controller extends \CI4Xpander\Controller
 
                         $error = $databaseConnection->error();
 
-                        \Config\Services::dashboardMessage()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue("Error:<br/>{$error['message']} ({$error['code']})");
+                        \Config\Services::message()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue("Error:<br/>{$error['message']} ({$error['code']})");
                     }
                 }
             }

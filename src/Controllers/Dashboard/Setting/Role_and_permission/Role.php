@@ -184,7 +184,7 @@ class Role extends \CI4Xpander_Dashboard\Controller
                 }
             }, 'create');
         } else {
-            \Config\Services::message()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Gagal menyimpan data. Mohon periksa data yang anda masukkan.');
+            \Config\Services::message()->setType(\CI4Xpander\Helpers\Message::DANGER)->setValue('Gagal menyimpan data. Mohon periksa data yang anda masukkan.');
         }
     }
 
@@ -200,7 +200,7 @@ class Role extends \CI4Xpander_Dashboard\Controller
                 ModelsRole::create()->update($item->id, $data);
             }, 'update', $item->id);
         }else {
-            \Config\Services::message()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Gagal menyimpan data. Mohon periksa data yang anda masukkan.');
+            \Config\Services::message()->setType(\CI4Xpander\Helpers\Message::DANGER)->setValue('Gagal menyimpan data. Mohon periksa data yang anda masukkan.');
         }
     }
 

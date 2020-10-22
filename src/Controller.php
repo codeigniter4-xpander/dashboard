@@ -954,10 +954,10 @@ class Controller extends \CI4Xpander\Controller
 
                 return redirect()->to($this->CRUD['base_url']);
             } else {
-                \Config\Services::message()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue('Item not found');
+                \Config\Services::message()->setType(\CI4Xpander\Helpers\Message::DANGER)->setValue('Item not found');
             }
         } else {
-            \Config\Services::message()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue($this->validation->listErrors());
+            \Config\Services::message()->setType(\CI4Xpander\Helpers\Message::DANGER)->setValue($this->validation->listErrors());
         }
     }
 
@@ -1055,8 +1055,8 @@ class Controller extends \CI4Xpander\Controller
                             $databaseConnection->transCommit();
                         }
 
-                        return redirect()->to($this->CRUD['base_url'] . ($action == 'update' ? "/update/{$id}" : ''))->with('message', \CI4Xpander_Dashboard\Helpers\Message::create(
-                                \CI4Xpander_Dashboard\Helpers\Message::SUCCESS,
+                        return redirect()->to($this->CRUD['base_url'] . ($action == 'update' ? "/update/{$id}" : ''))->with('message', \CI4Xpander\Helpers\Message::create(
+                                \CI4Xpander\Helpers\Message::SUCCESS,
                                 'Success'
                             )->render()
                         );
@@ -1067,7 +1067,7 @@ class Controller extends \CI4Xpander\Controller
 
                         $error = $databaseConnection->error();
 
-                        \Config\Services::message()->setType(\CI4Xpander_Dashboard\Helpers\Message::DANGER)->setValue("Error:<br/>{$error['message']} ({$error['code']})");
+                        \Config\Services::message()->setType(\CI4Xpander\Helpers\Message::DANGER)->setValue("Error:<br/>{$error['message']} ({$error['code']})");
                     }
                 }
             }

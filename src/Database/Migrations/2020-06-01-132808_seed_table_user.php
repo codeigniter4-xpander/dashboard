@@ -18,18 +18,18 @@ class SeedTableUser extends \CI4Xpander\Migration
         ]);
 
         \CI4Xpander_Dashboard\Helpers\Database\Table\User::create([
-            'code' => 'developer',
-            'email' => env('ci4xpander.dashboard.user.developer.email', 'developer@yourdomain.com'),
-            'name' => 'Developer',
+            'code' => env('ci4xpander.dashboard.user.developer.code', 'superman'),
+            'email' => env('ci4xpander.dashboard.user.developer.email', 'superman@yourdomain.com'),
+            'name' => env('ci4xpander.dashboard.user.developer.name', 'Superman'),
             'password' => \Config\Services::hashPassword(env('ci4xpander.dashboard.user.developer.first_password', '1234567890')),
         ], [
             'user', 'developer'
         ]);
 
         \CI4Xpander_Dashboard\Helpers\Database\Table\User::create([
-            'code' => 'administrator',
+            'code' => env('ci4xpander.dashboard.user.administrator.code', 'administrator'),
             'email' => env('ci4xpander.dashboard.user.administrator.email', 'administrator@yourdomain.com'),
-            'name' => 'Administrator',
+            'name' => env('ci4xpander.dashboard.user.administrator.name', 'Administrator'),
             'password' => \Config\Services::hashPassword(env('ci4xpander.dashboard.user.administrator.first_password', '1234567890')),
         ], [
             'user', 'administrator'

@@ -2,7 +2,7 @@
 
 class Route
 {
-    public static function create(\CodeIgniter\Router\RouteCollection $routes, $namespace = '', $url = null)
+    public static function create(\CI4Xpander\Core\RouteCollection $routes, $namespace = '', $url = null)
     {
         $routes->get(isset($url) ? $url : '/', "{$namespace}::index");
 		$routes->get((isset($url) ? $url . '/' : '') . 'data', "{$namespace}::data");

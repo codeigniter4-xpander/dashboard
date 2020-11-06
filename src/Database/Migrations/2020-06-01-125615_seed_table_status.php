@@ -1,6 +1,6 @@
 <?php namespace CI4Xpander_Dashboard\Database\Migrations;
 
-class seed_table_status extends \CI4Xpander\Migration
+class Migration_seed_table_status extends \CI4Xpander\Migration
 {
 	public function up()
 	{

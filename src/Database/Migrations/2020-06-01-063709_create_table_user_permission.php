@@ -1,6 +1,6 @@
 <?php namespace CI4Xpander_Dashboard\Database\Migrations;
 
-class create_table_user_permission extends \CI4Xpander\Migration
+class Migration_create_table_user_permission extends \CI4Xpander\Migration
 {
 	public function up()
 	{

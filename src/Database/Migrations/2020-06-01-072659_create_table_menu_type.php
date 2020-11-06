@@ -1,6 +1,6 @@
 <?php namespace CI4Xpander_Dashboard\Database\Migrations;
 
-class CreateTableMenuType extends \CI4Xpander\Migration
+class create_table_menu_type extends \CI4Xpander\Migration
 {
 	public function up()
 	{

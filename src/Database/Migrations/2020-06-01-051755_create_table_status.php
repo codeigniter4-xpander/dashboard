@@ -1,6 +1,6 @@
 <?php namespace CI4Xpander_Dashboard\Database\Migrations;
 
-class CreateTableStatus extends \CI4Xpander\Migration
+class create_table_status extends \CI4Xpander\Migration
 {
 	public function up()
 	{

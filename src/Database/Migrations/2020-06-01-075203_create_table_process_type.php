@@ -1,6 +1,6 @@
 <?php namespace CI4Xpander_Dashboard\Database\Migrations;
 
-class CreateTableProcessType extends \CI4Xpander\Migration
+class create_table_process_type extends \CI4Xpander\Migration
 {
 	public function up()
 	{

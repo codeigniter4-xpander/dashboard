@@ -2,12 +2,20 @@
 
 class Route
 {
-    public static function create(\CI4Xpander\Core\RouteCollection $routes, $namespace = '', $url = null)
+    public static function create(\CI4Xpander\Core\RouteCollection $routes, $config = [])
     {
-        $routes->get(isset($url) ? $url : '/', "{$namespace}::index");
-        $routes->get((isset($url) ? $url . '/' : '') . 'data', "{$namespace}::data");
-        $routes->match(['get', 'post'], (isset($url) ? $url . '/' : '') . 'create', "{$namespace}::create");
-        $routes->match(['get', 'put'], (isset($url) ? $url . '/' : '') . 'update/(:num)', "{$namespace}::update/$1");
-        $routes->delete((isset($url) ? $url . '/' : '') . 'delete', "{$namespace}::delete");
+        $namespace = $config['namespace'] ?? '';
+        $url = $config['url'] ?? '';
+
+        $options = [];
+        if (isset($config['version'])) {
+            $options['version'] = $config['version'];
+        }
+
+        $routes->get($url, "{$namespace}::index");
+        $routes->get(empty($url) ? 'data' : $url . '/data', "{$namespace}::data");
+        $routes->match(['get', 'post'], empty($url) ? 'create' : $url . '/create', "{$namespace}::create");
+        $routes->match(['get', 'put'], empty($url) ? 'update/(:num)' : $url . '/update/(:num)', "{$namespace}::update/$1");
+        $routes->delete(empty($url) ? 'delete/(:num)' : $url . '/delete/(:num)', "{$namespace}::delete/$1");
     }
 }

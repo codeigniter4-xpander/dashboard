@@ -19,20 +19,26 @@ $routes->group('dashboard', [
         'namespace' => 'Setting',
     ], function (\CI4Xpander\Core\RouteCollection $routes) {
         $routes->group('role-and-permission', [
-            'namespace' => 'Setting\Role_and_permission',
+            'namespace' => 'Role_and_permission',
         ], function (\CI4Xpander\Core\RouteCollection $routes) {
-            \CI4Xpander_Dashboard\Helpers\Route::create($routes, 'Role', 'role');
-            \CI4Xpander_Dashboard\Helpers\Route::create($routes, 'Permission', 'permission');
+            \CI4Xpander_Dashboard\Helpers\Route::create($routes, [
+                'namespace' => 'Role',
+                'url' => 'role'
+            ]);
+            \CI4Xpander_Dashboard\Helpers\Route::create($routes, [
+                'namespace' => 'Permission',
+                'url' => 'permission'
+            ]);
         });
 
         $routes->group('user', [
-            'namespace' => 'Setting',
+            'namespace' => 'User',
         ], function (\CI4Xpander\Core\RouteCollection $routes) {
-            \CI4Xpander_Dashboard\Helpers\Route::create($routes, 'User');
+            \CI4Xpander_Dashboard\Helpers\Route::create($routes);
         });
 
         $routes->group('database', [
-            'namespace' => 'Setting\Database',
+            'namespace' => 'Database',
         ], function (\CI4Xpander\Core\RouteCollection $routes) {
             $routes->match([
                 'get', 'post'

@@ -1,49 +1,44 @@
 <?php namespace CI4Xpander_Dashboard\Config;
 
-$routes->match([
-    'get'
-], 'dashboard/logout', 'Logout::index', [
-    'namespace' => 'CI4Xpander_Dashboard\Controllers',
-    'filter' => 'CI4XDashboardAuth:web,inside'
-]);
+$routes->setDefaultNamespace('CI4Xpander_Dashboard\Controllers');
 
 $routes->match([
     'get', 'post'
 ], 'login', 'Login::index', [
-    'namespace' => 'CI4Xpander_Dashboard\Controllers',
     'filter' => 'CI4XDashboardAuth:web,outside'
 ]);
 
 $routes->group('dashboard', [
-    'namespace' => 'CI4Xpander_Dashboard\Controllers',
+    'namespace' => 'Dashboard',
     'filter' => 'CI4XDashboardAuth:web,inside'
 ], function (\CI4Xpander\Core\RouteCollection $routes) {
-    $routes->match([
-        'get', 'post'
-    ], '/', 'Dashboard::index');
+    $routes->get('/', '::index');
+    $routes->get('logout', 'Logout::index');
 
     $routes->group('setting', [
-        'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting',
-        'filter' => 'CI4XDashboardAuth:web,inside'
+        'namespace' => 'Setting',
     ], function (\CI4Xpander\Core\RouteCollection $routes) {
         $routes->group('role-and-permission', [
-            'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting\Role_and_permission',
-            'filter' => 'CI4XDashboardAuth:web,inside'
+            'namespace' => 'Role_and_permission',
         ], function (\CI4Xpander\Core\RouteCollection $routes) {
-            \CI4Xpander_Dashboard\Helpers\Route::create($routes, 'Role', 'role');
-            \CI4Xpander_Dashboard\Helpers\Route::create($routes, 'Permission', 'permission');
+            \CI4Xpander_Dashboard\Helpers\Route::create($routes, [
+                'namespace' => 'Role',
+                'url' => 'role'
+            ]);
+            \CI4Xpander_Dashboard\Helpers\Route::create($routes, [
+                'namespace' => 'Permission',
+                'url' => 'permission'
+            ]);
         });
 
         $routes->group('user', [
-            'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting',
-            'filter' => 'CI4XDashboardAuth:web,inside'
+            'namespace' => 'User',
         ], function (\CI4Xpander\Core\RouteCollection $routes) {
-            \CI4Xpander_Dashboard\Helpers\Route::create($routes, 'User');
+            \CI4Xpander_Dashboard\Helpers\Route::create($routes);
         });
 
         $routes->group('database', [
-            'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Setting\Database',
-            'filter' => 'CI4XDashboardAuth:web,inside'
+            'namespace' => 'Database',
         ], function (\CI4Xpander\Core\RouteCollection $routes) {
             $routes->match([
                 'get', 'post'
@@ -52,16 +47,13 @@ $routes->group('dashboard', [
     });
 
     $routes->group('ajax', [
-        'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Ajax',
-        'filter' => 'CI4XDashboardAuth:ajax,inside'
+        'namespace' => 'Ajax',
     ], function (\CI4Xpander\Core\RouteCollection $routes) {
         $routes->group('setting', [
-            'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Ajax\Setting',
-            'filter' => 'CI4XDashboardAuth:ajax,inside'
+            'namespace' => 'Setting',
         ], function (\CI4Xpander\Core\RouteCollection $routes) {
             $routes->group('role-and-permission', [
-                'namespace' => 'CI4Xpander_Dashboard\Controllers\Dashboard\Ajax\Setting\Role_and_permission',
-                'filter' => 'CI4XDashboardAuth:ajax,inside'
+                'namespace' => 'Role_and_permission',
             ], function (\CI4Xpander\Core\RouteCollection $routes) {
                 $routes->get('permission', 'Permission::index');
                 $routes->get('role', 'Role::index');

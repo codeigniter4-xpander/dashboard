@@ -13,7 +13,7 @@ class Route
         }
 
         $routes->get($url, "{$namespace}::index");
-        $routes->get(empty($url) ? 'data' : $url . '/data', "{$namespace}::data");
+        // $routes->get(empty($url) ? 'data' : $url . '/data', "{$namespace}::data");
         $routes->match(['get', 'post'], empty($url) ? 'create' : $url . '/create', "{$namespace}::create");
         $routes->match(['get', 'put'], empty($url) ? 'update/(:num)' : $url . '/update/(:num)', "{$namespace}::update/$1");
         $routes->delete(empty($url) ? 'delete/(:num)' : $url . '/delete/(:num)', "{$namespace}::delete/$1");

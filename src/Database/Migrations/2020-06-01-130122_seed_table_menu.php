@@ -41,13 +41,29 @@ class Migration_seed_table_menu extends \CI4Xpander\Migration
         ]);
 
         \CI4Xpander_Dashboard\Helpers\Database\Table\Menu::create([
+            'code' => 'dashboardSettingMasterData',
+            'name' => 'Master Data',
+            'description' => 'Master Data Setting',
+            'url' => 'dashboard/setting/master-data',
+            'level' => 2,
+            'sequence_position' => 1,
+            'type_id' => 1
+        ], [
+            'code' => 'dashboardSettingMasterData',
+            'name' => 'Dashboard Setting Master Data',
+            'description' => 'Dashboard Setting Master Data'
+        ], [
+            'R' => true
+        ], 'dashboardSetting');
+
+        \CI4Xpander_Dashboard\Helpers\Database\Table\Menu::create([
             'code' => 'dashboardSettingSite',
             'name' => 'Site',
             'description' => 'Site Setting',
             'url' => 'dashboard/setting/site',
             'icon' => 'fa fa-bars',
             'level' => 2,
-            'sequence_position' => 1,
+            'sequence_position' => 91,
             'type_id' => 1
         ], [
             'code' => 'dashboardSettingSite',
@@ -64,7 +80,7 @@ class Migration_seed_table_menu extends \CI4Xpander\Migration
             'url' => 'dashboard/setting/role-and-permission',
             'icon' => 'fa fa-sitemap',
             'level' => 2,
-            'sequence_position' => 2,
+            'sequence_position' => 96,
             'type_id' => 1
         ], [
             'code' => 'dashboardSettingRoleAndPermission',
@@ -81,7 +97,7 @@ class Migration_seed_table_menu extends \CI4Xpander\Migration
             'url' => 'dashboard/setting/user',
             'icon' => 'fa fa-users',
             'level' => 2,
-            'sequence_position' => 3,
+            'sequence_position' => 97,
             'type_id' => 1
         ], [
             'code' => 'dashboardSettingUser',

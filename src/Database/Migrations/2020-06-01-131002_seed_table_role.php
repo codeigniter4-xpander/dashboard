@@ -25,6 +25,9 @@ class Migration_seed_table_role extends \CI4Xpander\Migration
             'dashboardSetting' => [
                 'C' => true, 'R' => true, 'U' => true, 'D' => true
             ],
+            'dashboardSettingMasterData' => [
+                'C' => true, 'R' => true, 'U' => true, 'D' => true
+            ],
             'dashboardSettingSite' => [
                 'C' => true, 'R' => true, 'U' => true, 'D' => true
             ],
@@ -61,6 +64,27 @@ class Migration_seed_table_role extends \CI4Xpander\Migration
             'level' => 10,
         ], [
             'dashboard' => [
+                'C' => true, 'R' => true, 'U' => true, 'D' => true
+            ],
+            'dashboardSetting' => [
+                'C' => true, 'R' => true, 'U' => true, 'D' => true
+            ],
+            'dashboardSettingMasterData' => [
+                'C' => true, 'R' => true, 'U' => true, 'D' => true
+            ],
+            'dashboardSettingSite' => [
+                'C' => true, 'R' => true, 'U' => true, 'D' => true
+            ],
+            'dashboardSettingRoleAndPermission' => [
+                'C' => true, 'R' => true, 'U' => true, 'D' => true
+            ],
+            'dashboardSettingRole' => [
+                'C' => true, 'R' => true, 'U' => true, 'D' => true
+            ],
+            'dashboardSettingPermission' => [
+                'C' => true, 'R' => true, 'U' => true, 'D' => true
+            ],
+            'dashboardSettingUser' => [
                 'C' => true, 'R' => true, 'U' => true, 'D' => true
             ],
         ], 'system');

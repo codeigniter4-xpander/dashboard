@@ -1002,6 +1002,7 @@ class Controller extends \CI4Xpander\Controller
                 ];
                 $form->isMultipart = $this->CRUD['form']['isMultipart'] ?? false;
                 $form->input = $this->CRUD['form']['input'] ?? [];
+                $form->tabbed = $this->CRUD['form']['tabbed'] ?? false;
                 $form->script = $this->CRUD['form']['script'] ?? null;
                 $form->request = $this->request;
                 $form->validator = $this->validator;

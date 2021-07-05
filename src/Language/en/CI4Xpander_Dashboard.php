@@ -12,6 +12,7 @@ return [
         'delete' => 'Delete',
         'create' => 'Create',
         'cancel' => 'Cancel',
+        'report' => 'Report',
     ],
     'index' => [
         'page' => [

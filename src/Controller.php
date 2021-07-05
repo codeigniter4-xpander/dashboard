@@ -124,6 +124,7 @@ class Controller extends \CI4Xpander\Controller
                     'read' => true,
                     'update' => true,
                     'delete' => true,
+                    'report' =>true,
                 ], $this->CRUD['action'] ?? []);
 
                 if (isset($this->CRUD['permission'])) {
@@ -353,6 +354,18 @@ class Controller extends \CI4Xpander\Controller
                     ]));
 
                     $box->data->head->tool = $addButton;
+                }
+
+                if ($action['report']) {
+                    $reportButton = \CI4Xpander_AdminLTE\View\Component\Button::create(\CI4Xpander_AdminLTE\View\Component\Button\Data::create([
+                        'text' => lang('CI4Xpander_Dashboard.general.report'),
+                        'isBlock' => false,
+                        'type' => 'success',
+                        'isLink' => true,
+                        'url' => $this->CRUD['base_url'] . '/report'
+                    ]));
+
+                    $box->data->head->tool .= $reportButton;
                 }
 
                 $message = \Config\Services::message()->render();
